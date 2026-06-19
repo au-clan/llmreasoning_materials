@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reasoning Trace Explorer</title>
+<style>
+  :root {
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2230; --line:#2a3343;
+    --text:#e6edf3; --muted:#8b949e; --ok:#3fb950; --bad:#f85149;
+    --solve:#58a6ff; --refine:#bc8cff; --sample:#39c5cf; --vote:#e3b341;
+    --think:#ffa657; --tool:#56d364; --final:#ff7b72;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text);
+    font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+  .wrap { max-width:1100px; margin:0 auto; padding:24px; }
+  h1 { font-size:22px; margin:0 0 4px; letter-spacing:.2px; }
+  .sub { color:var(--muted); margin-bottom:18px; }
+  .chip { display:inline-block; padding:2px 10px; border-radius:999px;
+    background:var(--panel2); border:1px solid var(--line); font-size:12px;
+    color:var(--muted); margin-right:6px; }
+  .card { background:var(--panel); border:1px solid var(--line);
+    border-radius:12px; padding:16px 18px; margin-bottom:16px; }
+  .q { font-size:15px; }
+  .q b { color:var(--vote); }
+  .tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+  .tab { cursor:pointer; padding:9px 14px; border-radius:10px; font-weight:600;
+    background:var(--panel); border:1px solid var(--line); color:var(--muted);
+    transition:.15s; }
+  .tab:hover { color:var(--text); border-color:#3b4758; }
+  .tab.active { color:var(--text); border-color:#4b91ff;
+    box-shadow:0 0 0 1px #4b91ff inset; }
+  .tab .dot { display:inline-block; width:8px; height:8px; border-radius:50%;
+    margin-right:7px; vertical-align:middle; }
+  .stats { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+  .stat { background:var(--panel2); border:1px solid var(--line);
+    border-radius:10px; padding:8px 12px; min-width:96px; }
+  .stat .k { color:var(--muted); font-size:11px; text-transform:uppercase;
+    letter-spacing:.5px; }
+  .stat .v { font-size:18px; font-weight:700; margin-top:2px; }
+  .v.ok { color:var(--ok); } .v.bad { color:var(--bad); }
+  .section-h { font-size:12px; text-transform:uppercase; letter-spacing:.6px;
+    color:var(--muted); margin:18px 0 8px; }
+  /* timeline */
+  .tl-row { display:flex; align-items:center; gap:10px; margin:5px 0; }
+  .tl-label { width:160px; flex:none; font-size:12px; color:var(--muted);
+    text-align:right; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tl-track { position:relative; flex:1; height:22px; background:var(--panel2);
+    border-radius:6px; border:1px solid var(--line); }
+  .tl-bar { position:absolute; top:2px; height:16px; border-radius:5px;
+    min-width:3px; opacity:.9; cursor:pointer; transition:.1s; }
+  .tl-bar:hover { opacity:1; outline:1px solid #fff3; }
+  .tl-axis { display:flex; justify-content:space-between; color:var(--muted);
+    font-size:11px; margin:6px 0 0 170px; }
+  .note { color:var(--muted); font-size:12px; margin-top:8px; font-style:italic; }
+  /* steps */
+  .step { border:1px solid var(--line); border-left:4px solid var(--line);
+    border-radius:10px; margin:8px 0; background:var(--panel); overflow:hidden; }
+  .step-h { display:flex; align-items:center; gap:10px; padding:10px 14px;
+    cursor:pointer; }
+  .step-h:hover { background:var(--panel2); }
+  .badge { font-size:10px; font-weight:700; text-transform:uppercase;
+    letter-spacing:.5px; padding:2px 8px; border-radius:6px; color:#0d1117; }
+  .step-title { font-weight:600; }
+  .step-meta { margin-left:auto; color:var(--muted); font-size:12px;
+    display:flex; gap:12px; align-items:center; }
+  .ans { padding:2px 8px; border-radius:6px; font-weight:700; font-size:12px;
+    background:var(--panel2); border:1px solid var(--line); }
+  .step-body { padding:0 14px; max-height:0; overflow:hidden; transition:.0s;
+    border-top:0 solid var(--line); }
+  .step.open .step-body { max-height:none; padding:12px 14px;
+    border-top:1px solid var(--line); }
+  pre.txt { margin:0; white-space:pre-wrap; word-break:break-word;
+    font:12.5px/1.55 "SF Mono",Menlo,Consolas,monospace; color:#cdd9e5; }
+  .tally { display:flex; flex-direction:column; gap:5px; margin-top:6px; }
+  .tally-row { display:flex; align-items:center; gap:8px; }
+  .tally-row .lab { width:70px; font-weight:700; }
+  .tally-bar { height:16px; border-radius:4px; background:var(--vote); }
+  .caret { color:var(--muted); transition:.15s; }
+  .step.open .caret { transform:rotate(90deg); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🔍 Reasoning Trace Explorer</h1>
+  <div class="sub" id="sub"></div>
+  <div class="card q" id="question"></div>
+  <div class="tabs" id="tabs"></div>
+  <div id="view"></div>
+  <div class="sub" style="margin-top:24px;font-size:12px">
+    ACL'26 tutorial — iterative · self-consistency · agentic, under latency budgets
+  </div>
+</div>
+<script>
+const DATA = {"model": "meta-llama/llama-3.1-8b-instruct", "question": "James writes a 3-page letter to 2 different friends twice a week. How many pages does he write a year?", "gold": "624", "traces": [{"strategy": "iterative", "title": "Iterative \u00b7 2 refine round(s)", "answer": "1248", "gold": "624", "correct": false, "latency_s": 27.48, "tokens": 1034, "calls": 3, "steps": [{"kind": "solve", "label": "initial solution", "text": "Let's break this down step by step:\n\n1. James writes a 3-page letter to 2 different friends twice a week. This means he writes 2 x 3 = 6 pages per week for each friend.\n2. Since he has 2 friends, he writes 6 pages per week for each friend, so he writes a total of 6 x 2 = 12 pages per week.\n3. There are 52 weeks in a year, so James writes a total of 12 x 52 = 624 pages per year.\n\n#### 624", "t0": 0.0, "t1": 8.006, "tokens": 189, "meta": {"answer": "624"}}, {"kind": "refine", "label": "refine #1", "text": "Upon reviewing my previous solution, I realize that I made a mistake in calculating the total number of pages written per week. Here's the corrected solution:\n\n1. James writes a 3-page letter to 2 different friends twice a week. This means he writes 2 x 3 = 6 pages per week for each friend.\n2. Since he has 2 friends, he writes 6 pages per week for each friend, so he writes a total of 6 x 2 = 12 pages per week.\n3. However, he writes twice a week, so he writes 12 x 2 = 24 pages per week.\n4. There are 52 weeks in a year, so James writes a total of 24 x 52 = 1248 pages per year.\n\n#### 1248", "t0": 8.006, "t1": 17.804, "tokens": 398, "meta": {"answer": "1248"}}, {"kind": "refine", "label": "refine #2", "text": "Upon reviewing my previous solution, I realize that I made a mistake in calculating the total number of pages written per week. Here's the corrected solution:\n\n1. James writes a 3-page letter to 2 different friends twice a week. This means he writes 2 x 3 = 6 pages per week for each friend.\n2. Since he has 2 friends, he writes 6 pages per week for each friend, so he writes a total of 6 x 2 = 12 pages per week.\n3. However, he writes twice a week, so he writes 12 x 2 = 24 pages per week.\n4. There are 52 weeks in a year, so James writes a total of 24 x 52 = 1248 pages per year.\n\n#### 1248", "t0": 17.804, "t1": 27.48, "tokens": 447, "meta": {"answer": "1248"}}]}, {"strategy": "self_consistency", "title": "Self-consistency \u00b7 k=5", "answer": "624", "gold": "624", "correct": true, "latency_s": 11.489, "tokens": 992, "calls": 5, "steps": [{"kind": "sample", "label": "chain 1", "text": "To find the total number of pages James writes in a year, we need to calculate the number of pages he writes per week and multiply it by the number of weeks in a year.\n\nJames writes a 3-page letter to 2 different friends twice a week, so he writes 3 x 2 = 6 pages per session. Since he does this twice a week, he writes 6 x 2 = 12 pages per week.\n\nThere are 52 weeks in a year, so James writes 12 x 52 = 624 pages per year.\n\n#### 624", "t0": 0.0, "t1": 7.843, "tokens": 190, "meta": {"answer": "624"}}, {"kind": "sample", "label": "chain 2", "text": "Let's break down the problem step by step:\n\n1. James writes a 3-page letter to 2 friends twice a week.\n   Since he writes to 2 friends, the total number of pages written per session is 3 * 2 = 6 pages.\n\n2. James does this twice a week, which means he writes 6 pages, twice a week, or a total of 6 * 2 = 12 pages per week.\n\n3. There are 52 weeks in a year.\n   So, James writes 12 * 52 = 624 pages in a year.\n\nThe final answer is: 624", "t0": 0.002, "t1": 7.608, "tokens": 200, "meta": {"answer": "624"}}, {"kind": "sample", "label": "chain 3", "text": "To find the total number of pages James writes a year, we need to first find the total number of pages he writes per week.\n\nJames writes a 3-page letter to 2 different friends twice a week, so the total number of pages he writes per week is:\n\n3 pages/letter * 2 letters/friend * 2 friends = 12 pages/week\n\nSince there are 52 weeks in a year, the total number of pages James writes a year is:\n\n12 pages/week * 52 weeks/year = 624 pages/year\n\n#### 624", "t0": 0.003, "t1": 8.124, "tokens": 187, "meta": {"answer": "624"}}, {"kind": "sample", "label": "chain 4", "text": "Let's break down the problem step by step:\n\n1. James writes a 3-page letter to 2 different friends twice a week. This means he writes 2 letters a week.\n2. Since each letter is 3 pages long, he writes 2 x 3 = 6 pages a week.\n3. Since there are 52 weeks in a year, he writes 6 x 52 = 312 pages a year.\n\nThe final answer is 312", "t0": 0.005, "t1": 1.568, "tokens": 169, "meta": {"answer": "312"}}, {"kind": "sample", "label": "chain 5", "text": "To find the total number of pages James writes in a year, we need to break down the problem step by step.\n\n1. First, we find out how many pages he writes per week:\n   James writes 3 pages to 2 friends twice a week, so he writes 3 x 2 = 6 pages per session.\n   Since he does this twice a week, he writes 6 x 2 = 12 pages per week.\n\n2. Now, we need to find out how many weeks are there in a year:\n   There are 52 weeks in a year.\n\n3. To find the total number of pages James writes in a year, we multiply the number of pages he writes per week by the number of weeks in a year:\n   12 pages/week x 52 weeks/year = 624 pages/year.\n\n#### 624", "t0": 0.006, "t1": 11.488, "tokens": 246, "meta": {"answer": "624"}}, {"kind": "vote", "label": "majority vote", "text": "answers = ['624', '624', '624', '312', '624']\nvote = 624", "t0": 11.489, "t1": 11.489, "tokens": 0, "meta": {"answer": "624", "tally": {"624": 4, "312": 1}}}]}, {"strategy": "agentic", "title": "Agentic \u00b7 2 tool call(s)", "answer": "624", "gold": "624", "correct": true, "latency_s": 7.253, "tokens": 1562, "calls": 3, "steps": [{"kind": "think", "label": "turn 1: reason + tool call", "text": "To find the total number of pages James writes in a year, we need to calculate the number of pages he writes per week and then multiply it by the number of weeks in a year.\n\nFirst, let's calculate the number of pages James writes per week. He writes 3-page letters to 2 friends twice a week, so:\n\n\n\nThe result is 12 pages per week.\n\nNext, we need to calculate the number of weeks in a year. There are 52 weeks in a year.\n\nNow, let's multiply the number of pages James writes per week by the number of weeks in a year:\n\n12 pages/week * 52 weeks/year = 624 pages/year\n\nThe final answer is 624.\n\n\u2192 calls: calculate({\"expression\": \"3 * 2 * 2\"})", "t0": 0.0, "t1": 5.91, "tokens": 497, "meta": {}}, {"kind": "tool", "label": "calculate", "text": "3 * 2 * 2 = 12", "t0": 5.91, "t1": 5.91, "tokens": 0, "meta": {"expression": "3 * 2 * 2", "result": "12"}}, {"kind": "think", "label": "turn 2: reason + tool call", "text": "\u2192 calls: calculate({\"expression\": \"12 * 52\"})", "t0": 5.91, "t1": 6.73, "tokens": 525, "meta": {}}, {"kind": "tool", "label": "calculate", "text": "12 * 52 = 624", "t0": 6.73, "t1": 6.731, "tokens": 0, "meta": {"expression": "12 * 52", "result": "624"}}, {"kind": "final", "label": "final answer (turn 3)", "text": "#### 624", "t0": 6.731, "t1": 7.253, "tokens": 540, "meta": {"answer": "624"}}]}]};
+const KIND = {
+  solve:"--solve", refine:"--refine", sample:"--sample", vote:"--vote",
+  think:"--think", tool:"--tool", final:"--final"
+};
+const css = k => getComputedStyle(document.documentElement).getPropertyValue(KIND[k]||"--line").trim();
+const esc = s => (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+document.getElementById("sub").innerHTML =
+  '<span class="chip">model: '+esc(DATA.model)+'</span>' +
+  '<span class="chip">'+DATA.traces.length+' strategies</span>';
+document.getElementById("question").innerHTML =
+  esc(DATA.question) + '<br><br>gold answer: <b>'+esc(DATA.gold)+'</b>';
+
+let active = 0;
+const tabs = document.getElementById("tabs");
+DATA.traces.forEach((t,i) => {
+  const b = document.createElement("div");
+  b.className = "tab" + (i===0?" active":"");
+  const c = t.correct ? "var(--ok)" : "var(--bad)";
+  b.innerHTML = '<span class="dot" style="background:'+c+'"></span>' +
+    esc(t.strategy.replace("_"," ")) + (t.correct?" ✓":" ✗");
+  b.onclick = () => { active=i; render();
+    [...tabs.children].forEach((x,j)=>x.classList.toggle("active",j===i)); };
+  tabs.appendChild(b);
+});
+
+function timeline(t) {
+  const maxT = Math.max(t.latency_s, ...t.steps.map(s=>s.t1), 0.001);
+  let rows = "";
+  t.steps.forEach(s => {
+    const left = 100*s.t0/maxT, w = Math.max(100*(s.t1-s.t0)/maxT, 0.6);
+    const dur = (s.t1-s.t0).toFixed(2);
+    rows += '<div class="tl-row"><div class="tl-label">'+esc(s.label)+'</div>' +
+      '<div class="tl-track"><div class="tl-bar" title="'+esc(s.label)+
+      ' · '+s.t0.toFixed(2)+'–'+s.t1.toFixed(2)+'s ('+dur+'s)" ' +
+      'style="left:'+left+'%;width:'+w+'%;background:'+css(s.kind)+'" ' +
+      'onclick="jump('+t.steps.indexOf(s)+')"></div></div></div>';
+  });
+  const work = t.steps.reduce((a,s)=>a+(s.t1-s.t0),0);
+  const speed = work/Math.max(t.latency_s,1e-6);
+  const note = speed>1.5
+    ? 'Sum of step work = '+work.toFixed(1)+'s but wall-clock = '+t.latency_s.toFixed(1)
+      +'s → ≈ ×'+speed.toFixed(1)+' parallel speedup (overlapping bars).'
+    : 'Steps run sequentially: each bar starts where the previous ends.';
+  return rows +
+    '<div class="tl-axis"><span>0s</span><span>'+(maxT/2).toFixed(1)+
+    's</span><span>'+maxT.toFixed(1)+'s</span></div>' +
+    '<div class="note">'+note+'</div>';
+}
+
+function tally(meta) {
+  const t = meta.tally || {}; const max = Math.max(1,...Object.values(t));
+  return '<div class="tally">' + Object.entries(t).sort((a,b)=>b[1]-a[1]).map(
+    ([k,v]) => '<div class="tally-row"><span class="lab">'+esc(k)+'</span>' +
+    '<div class="tally-bar" style="width:'+(180*v/max)+'px"></div>' +
+    '<span>'+v+'</span></div>').join("") + '</div>';
+}
+
+function steps(t) {
+  return t.steps.map((s,i) => {
+    const col = css(s.kind);
+    const ans = (s.meta && s.meta.answer!=null)
+      ? '<span class="ans" style="color:'+col+'">'+esc(s.meta.answer)+'</span>' : '';
+    const body = (s.kind==="vote") ? tally(s.meta)
+      : '<pre class="txt">'+esc(s.text)+'</pre>';
+    return '<div class="step" id="step'+i+'" style="border-left-color:'+col+'">' +
+      '<div class="step-h" onclick="this.parentNode.classList.toggle(\'open\')">' +
+      '<span class="badge" style="background:'+col+'">'+esc(s.kind)+'</span>' +
+      '<span class="step-title">'+esc(s.label)+'</span>' +
+      '<span class="step-meta">' +
+        (s.tokens?'<span>'+s.tokens+' tok</span>':'') +
+        '<span>'+s.t0.toFixed(2)+'–'+s.t1.toFixed(2)+'s</span>' + ans +
+        '<span class="caret">▶</span></span></div>' +
+      '<div class="step-body">'+body+'</div></div>';
+  }).join("");
+}
+
+function render() {
+  const t = DATA.traces[active];
+  const ansCls = t.correct ? "ok" : "bad";
+  const stat = (k,v,cls="") => '<div class="stat"><div class="k">'+k+
+    '</div><div class="v '+cls+'">'+v+'</div></div>';
+  document.getElementById("view").innerHTML =
+    '<div class="card"><div style="font-size:16px;font-weight:700;margin-bottom:12px">'+
+      esc(t.title)+'</div><div class="stats">' +
+      stat("predicted", esc(t.answer), ansCls) +
+      stat("gold", esc(t.gold)) +
+      stat("latency", t.latency_s.toFixed(2)+"s") +
+      stat("model calls", t.calls) +
+      stat("tokens", t.tokens) +
+      stat("steps", t.steps.length) +
+    '</div>' +
+    '<div class="section-h">Execution timeline</div>'+timeline(t) +
+    '<div class="section-h">Steps &nbsp;<span style="text-transform:none;font-style:italic">(click to expand)</span></div>' +
+    steps(t) + '</div>';
+}
+function jump(i){ const el=document.getElementById("step"+i);
+  el.classList.add("open"); el.scrollIntoView({behavior:"smooth",block:"center"}); }
+render();
+</script>
+</body>
+</html>
