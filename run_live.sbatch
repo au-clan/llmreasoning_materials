@@ -1,0 +1,68 @@
+#!/bin/bash
+#SBATCH --job-name=reasoning-live
+#SBATCH --partition=cpu          # <-- set to a CPU partition on your cluster
+#SBATCH --cpus-per-task=2
+#SBATCH --mem=4G
+#SBATCH --time=04:00:00          # tunnel stays up for the whole walltime
+#SBATCH --output=live-%j.log     # public URL gets printed in here
+# No GPU requested on purpose — all model compute happens on OpenRouter.
+
+set -euo pipefail
+
+PORT=8001                        # port the demo launcher (index/game24/protocols) listens on
+STRAT_PORT=8000                  # port the live strategies SSE server listens on (separate)
+PROJECT_DIR="$SLURM_SUBMIT_DIR"  # assumes you `sbatch` from the repo root
+cd "$PROJECT_DIR"
+
+# --- preflight: the node needs outbound internet (for ngrok AND OpenRouter) ---
+if ! curl -sSf --max-time 10 https://openrouter.ai >/dev/null 2>&1; then
+  echo "ERROR: no outbound internet from $(hostname). This node is likely"
+  echo "firewalled — ngrok and OpenRouter are both unreachable. Talk to your"
+  echo "cluster admin or run the live server off-cluster instead."
+  exit 1
+fi
+
+# --- ngrok auth (free account token); set NGROK_AUTHTOKEN before submitting ---
+# Either: export NGROK_AUTHTOKEN=... in your shell before `sbatch`
+#     or: run once `ngrok config add-authtoken <token>` and delete this block.
+if [[ -n "${NGROK_AUTHTOKEN:-}" ]]; then
+  ngrok config add-authtoken "$NGROK_AUTHTOKEN" >/dev/null 2>&1 || true
+fi
+
+# --- start the unified demo launcher (binds to localhost; ngrok forwards to it).
+#     Serves the index + Game24 tree + scoring-protocols on $PORT, and starts the
+#     live reasoning-strategies SSE server on $STRAT_PORT in a background thread. ---
+uv run python demo/serve.py --no-open --host 127.0.0.1 \
+  --port "$PORT" --strategies-port "$STRAT_PORT" &
+SERVER_PID=$!
+
+# --- start the ngrok tunnel agent ---
+ngrok http "$PORT" --log=stdout > "ngrok-$SLURM_JOB_ID.log" 2>&1 &
+NGROK_PID=$!
+
+# clean up both processes whenever the job ends (walltime, scancel, error)
+trap 'kill $SERVER_PID $NGROK_PID 2>/dev/null || true' EXIT
+
+# --- fish the public URL out of ngrok's local API and print it loudly ---
+PUBLIC_URL=""
+for _ in $(seq 1 30); do
+  PUBLIC_URL=$(curl -s http://127.0.0.1:4040/api/tunnels \
+    | uv run python -c "import sys,json; t=json.load(sys.stdin)['tunnels']; print(t[0]['public_url'] if t else '')" 2>/dev/null || true)
+  [[ -n "$PUBLIC_URL" ]] && break
+  sleep 2
+done
+
+echo "=================================================================="
+if [[ -n "$PUBLIC_URL" ]]; then
+  echo "  LIVE DEMO PUBLIC URL:  $PUBLIC_URL"
+  echo "  (forwards to the launcher on $(hostname):$PORT — index, /game24, /protocols)"
+  echo "  NOTE: the live 'strategies' demo runs on a second port ($STRAT_PORT) that this"
+  echo "        single ngrok tunnel does not expose; it works on the node, but to reach"
+  echo "        it remotely you'd tunnel $STRAT_PORT too (free ngrok allows one tunnel)."
+else
+  echo "  ngrok did not report a URL — see ngrok-$SLURM_JOB_ID.log"
+fi
+echo "=================================================================="
+
+# keep the job alive until walltime / scancel; tunnel lives as long as this runs
+wait $SERVER_PID
