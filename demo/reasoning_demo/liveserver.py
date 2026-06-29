@@ -80,12 +80,8 @@ class Handler(BaseHTTPRequestHandler):
             self.send_error(404)
 
     def _html(self):
-        probs = [{"id": p.id, "q": p.question} for p in self.server.problems]
-        page = (PAGE
-                .replace("__PROBLEMS__", json.dumps(probs))
-                .replace("__MODEL__", json.dumps(self.server.llm.model))
-                .replace("__DEFAULTS__", json.dumps(self.server.defaults)))
-        body = page.encode()
+        body = render_page(self.server.llm, self.server.problems,
+                           self.server.defaults).encode()
         self.send_response(200)
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
@@ -93,42 +89,65 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def _events(self, qs):
-        def g(name, default):
-            try:
-                return int(qs.get(name, [default])[0])
-            except (ValueError, TypeError):
-                return default
+        stream_events(self, qs, self.server.llm, self.server.problems,
+                      self.server.defaults)
 
-        pid = qs.get("id", [None])[0]
-        prob = next((p for p in self.server.problems if p.id == pid),
-                    self.server.problems[0])
-        k, rounds, max_steps = g("k", 5), g("rounds", 2), g("max_steps", 6)
-        depth, n_agents = g("depth", 2), g("n_agents", 4)
-        valid = ("input_output", "self_consistency", "react", "agentic",
-                 "iterative", "tree_of_thoughts", "fleet_of_agents")
-        strat = qs.get("strategy", [None])[0]
-        names = [strat] if strat in valid else list(valid)
 
-        self.send_response(200)
-        self.send_header("Content-Type", "text/event-stream")
-        self.send_header("Cache-Control", "no-cache")
-        self.send_header("Connection", "close")
-        self.end_headers()
+DEFAULTS = {"k": 5, "rounds": 2, "max_steps": 6, "depth": 2, "n_agents": 4}
 
-        ev_q: queue.Queue = queue.Queue()
-        threading.Thread(target=_run,
-                         args=(self.server.llm, prob, ev_q, names, k, rounds,
-                               max_steps, depth, n_agents),
-                         daemon=True).start()
-        while True:
-            ev = ev_q.get()
-            if ev is None:
-                break
-            try:
-                self.wfile.write(f"data: {json.dumps(ev)}\n\n".encode())
-                self.wfile.flush()
-            except (BrokenPipeError, ConnectionResetError):
-                break  # browser navigated away / closed the stream
+
+def render_page(llm, problems, defaults=None) -> str:
+    """Build the live-trace HTML page. Reused by the standalone server and by the
+    unified launcher (demo/serve.py), so both can serve it from one port."""
+    probs = [{"id": p.id, "q": p.question} for p in problems]
+    return (PAGE
+            .replace("__PROBLEMS__", json.dumps(probs))
+            .replace("__MODEL__", json.dumps(llm.model))
+            .replace("__DEFAULTS__", json.dumps(defaults or DEFAULTS)))
+
+
+def stream_events(handler, qs, llm, problems, defaults=None) -> None:
+    """Run the requested strategy (or all) and stream each step to `handler.wfile`
+    as SSE. The page fetches the root-relative `/events`, so whatever server owns
+    that route (standalone or the launcher) can host the live demo."""
+    defaults = defaults or DEFAULTS
+
+    def g(name, default):
+        try:
+            return int(qs.get(name, [default])[0])
+        except (ValueError, TypeError):
+            return default
+
+    pid = qs.get("id", [None])[0]
+    prob = next((p for p in problems if p.id == pid), problems[0])
+    k, rounds = g("k", defaults["k"]), g("rounds", defaults["rounds"])
+    max_steps = g("max_steps", defaults["max_steps"])
+    depth, n_agents = g("depth", defaults["depth"]), g("n_agents", defaults["n_agents"])
+    valid = ("input_output", "self_consistency", "react", "agentic",
+             "iterative", "tree_of_thoughts", "fleet_of_agents")
+    strat = qs.get("strategy", [None])[0]
+    names = [strat] if strat in valid else list(valid)
+
+    handler.send_response(200)
+    handler.send_header("Content-Type", "text/event-stream")
+    handler.send_header("Cache-Control", "no-cache")
+    handler.send_header("Connection", "close")
+    handler.end_headers()
+
+    ev_q: queue.Queue = queue.Queue()
+    threading.Thread(target=_run,
+                     args=(llm, prob, ev_q, names, k, rounds,
+                           max_steps, depth, n_agents),
+                     daemon=True).start()
+    while True:
+        ev = ev_q.get()
+        if ev is None:
+            break
+        try:
+            handler.wfile.write(f"data: {json.dumps(ev)}\n\n".encode())
+            handler.wfile.flush()
+        except (BrokenPipeError, ConnectionResetError):
+            break  # browser navigated away / closed the stream
 
 
 def serve(model: str | None = None, host: str = "127.0.0.1", port: int = 8000,
@@ -136,8 +155,7 @@ def serve(model: str | None = None, host: str = "127.0.0.1", port: int = 8000,
     httpd = ThreadingHTTPServer((host, port), Handler)
     httpd.llm = LLM(model=model)
     httpd.problems = load_problems()
-    httpd.defaults = defaults or {"k": 5, "rounds": 2, "max_steps": 6,
-                                  "depth": 2, "n_agents": 4}
+    httpd.defaults = defaults or DEFAULTS
     url = f"http://{host}:{port}/"
     print(f"Live trace server on {url}  (model: {httpd.llm.model})")
     print("Open it in a browser; press Ctrl-C to stop.")
@@ -178,10 +196,11 @@ PAGE = r"""<!DOCTYPE html>
   * { box-sizing:border-box; }
   body { margin:0; background:var(--bg); color:var(--text);
     font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
-  .theme-toggle { position:fixed; top:14px; right:16px; z-index:99; cursor:pointer;
-    font:inherit; font-size:13px; padding:6px 12px; border-radius:8px;
+  .theme-toggle, .home-btn { position:fixed; right:16px; z-index:99; cursor:pointer;
+    font:inherit; font-size:13px; padding:6px 12px; border-radius:8px; text-decoration:none;
     border:1px solid var(--line); background:var(--panel2); color:var(--text); }
-  .theme-toggle:hover { border-color:var(--hover); }
+  .home-btn { top:14px; } .theme-toggle { top:52px; }
+  .theme-toggle:hover, .home-btn:hover { border-color:var(--hover); }
   .wrap { max-width:1100px; margin:0 auto; padding:24px; }
   h1 { font-size:22px; margin:0 0 4px; }
   .hero { border-bottom:1px solid var(--line); background:
@@ -317,6 +336,7 @@ PAGE = r"""<!DOCTYPE html>
 </script>
 </head>
 <body>
+<a class="home-btn" href="/">&larr; Main</a>
 <button id="themeBtn" class="theme-toggle"></button>
 <div class="hero"><div class="wrap" style="padding:30px 24px 26px">
   <h1><span class="dot-live"></span><span class="grad">Test-Time Reasoning</span>&nbsp;</h1>

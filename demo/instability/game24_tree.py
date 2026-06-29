@@ -185,10 +185,11 @@ _TEMPLATE = r"""<!DOCTYPE html>
   * { box-sizing: border-box; }
   body { margin:0; font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
          color:var(--ink); background:var(--bg); }
-  .theme-toggle { position:fixed; top:14px; right:16px; z-index:99; cursor:pointer;
-    font:inherit; font-size:13px; padding:6px 12px; border-radius:8px;
+  .theme-toggle, .home-btn { position:fixed; right:16px; z-index:99; cursor:pointer;
+    font:inherit; font-size:13px; padding:6px 12px; border-radius:8px; text-decoration:none;
     border:1px solid var(--line); background:var(--panel2); color:var(--ink); }
-  .theme-toggle:hover { border-color:var(--hover); }
+  .home-btn { top:14px; } .theme-toggle { top:52px; }
+  .theme-toggle:hover, .home-btn:hover { border-color:var(--hover); }
   header { padding:26px 24px 14px; border-bottom:1px solid var(--line); background:
       radial-gradient(1100px 220px at 18% -60%, rgba(88,166,255,.12), transparent 60%),
       radial-gradient(900px 220px at 90% -80%, rgba(247,120,186,.10), transparent 60%),
@@ -247,6 +248,7 @@ _TEMPLATE = r"""<!DOCTYPE html>
 </script>
 </head>
 <body>
+<a class="home-btn" href="/">&larr; Main</a>
 <button id="themeBtn" class="theme-toggle"></button>
 <header>
   <h1 id="title"></h1>

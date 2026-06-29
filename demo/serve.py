@@ -1,27 +1,28 @@
 #!/usr/bin/env python3
-"""Serve the tutorial's browser demos over local HTTP, the same way
-`run_demo.py live` serves the reasoning-strategies trace explorer — but from one
-launcher with an index, so you can pick any of them on stage.
+"""Serve all of the tutorial's browser demos over local HTTP from one launcher,
+on a single port, so you can pick any of them on stage from a URL.
 
-Three demos:
+All four routes share one server / one port:
+  * /            — index (pick a demo)
   * /game24      — Game24 combination tree     (demo/instability/game24_tree.py)
   * /protocols   — scoring-protocols app       (demo/instability/protocols_app.py)
-  * reasoning strategies live trace explorer   (demo/reasoning_demo/liveserver.py)
+  * /strategies  — live reasoning-strategies trace explorer (+ its /events SSE
+                   stream)                      (demo/reasoning_demo/liveserver.py)
 
 The first two are self-contained static HTML (built on demand, no network). The
-strategies demo is an SSE server that runs models live, so it keeps its own port
-(it needs OPENROUTER_API_KEY); this launcher starts it in the background when a
-key is present and links to it from the index.
+strategies demo runs models live, so it needs OPENROUTER_API_KEY; without a key
+(or with --no-strategies) it's skipped and its index card shows the reason — the
+two offline demos still work.
 
 Usage:
-  python demo/serve.py                        # serve all three; open the index
+  python demo/serve.py                        # serve everything; open the index
   python demo/serve.py --open game24          # land on the Game24 tree
   python demo/serve.py --open strategies      # land on the live strategies demo
   python demo/serve.py --model gpt-5-mini --puzzle "6 6 7 12"   # Game24 knobs
-  python demo/serve.py --no-strategies        # skip the live strategies server
+  python demo/serve.py --no-strategies        # skip the live strategies demo
   python demo/serve.py --no-open --port 8011  # headless / custom port
 
-Routes (this server): /  (index)  ·  /game24  ·  /protocols
+Routes: /  ·  /game24  ·  /protocols  ·  /strategies (+ /events)
 """
 from __future__ import annotations
 
@@ -31,6 +32,7 @@ import sys
 import threading
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import parse_qs, urlparse
 
 HERE = os.path.dirname(os.path.abspath(__file__))      # the demo/ package dir
 ROOT = os.path.dirname(HERE)                           # repo root (parent of demo/)
@@ -44,6 +46,7 @@ except Exception:  # python-dotenv not installed -> rely on real env vars
     pass
 
 from demo.instability import game24_tree, protocols_app
+from demo.reasoning_demo import liveserver
 
 # Small dark/light theme switcher, shared verbatim with the demo pages. Sets
 # data-theme on <html> before paint (no flash) and remembers the choice.
@@ -60,10 +63,10 @@ _THEME_JS = """<script>
 </script>"""
 
 
-def _index(strategies_url: str | None, strategies_note: str | None) -> str:
-    if strategies_url:
+def _index(strategies_enabled: bool, strategies_note: str | None) -> str:
+    if strategies_enabled:
         strat_card = (
-            f'<a class="card" href="{strategies_url}">'
+            '<a class="card" href="/strategies">'
             '<span class="seclabel">§2.1 · Inference-time reasoning strategies</span>'
             '<b>Reasoning strategies (live) <span class="arr">→</span></b>'
             '<span>Seven test-time strategies streamed step by step over SSE — '
@@ -165,7 +168,15 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
     def do_GET(self):
-        path = self.path.split("?", 1)[0].rstrip("/") or "/"
+        u = urlparse(self.path)
+        path = u.path.rstrip("/") or "/"
+        if path == "/events":  # SSE: manages its own response/headers, no html wrapper
+            if not self.server.cfg["strategies_enabled"]:
+                self.send_error(404)
+                return
+            llm, problems, defaults = self.server.strategies()
+            liveserver.stream_events(self, parse_qs(u.query), llm, problems, defaults)
+            return
         try:
             if path == "/":
                 self._send(self.server.index_html())
@@ -173,6 +184,13 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(self.server.page("game24"))
             elif path == "/protocols":
                 self._send(self.server.page("protocols"))
+            elif path == "/strategies":
+                if not self.server.cfg["strategies_enabled"]:
+                    self._send("<h1>strategies unavailable</h1><p>"
+                               + (self.server.cfg["strategies_note"] or "") + "</p>", 404)
+                else:
+                    llm, problems, defaults = self.server.strategies()
+                    self._send(liveserver.render_page(llm, problems, defaults))
             else:
                 self._send(f"<h1>404</h1><p>no route {path}</p>", 404)
         except Exception as e:  # surface build errors in the browser, not just the console
@@ -187,6 +205,7 @@ class Server(ThreadingHTTPServer):
         super().__init__(addr, Handler)
         self.cfg = cfg
         self._cache: dict[str, str] = {}
+        self._strat = None  # (llm, problems, defaults) for the live demo, built lazily
 
     def page(self, which: str) -> str:
         if which not in self._cache:
@@ -198,26 +217,29 @@ class Server(ThreadingHTTPServer):
         return self._cache[which]
 
     def index_html(self) -> str:
-        return _index(self.cfg["strategies_url"], self.cfg["strategies_note"])
+        return _index(self.cfg["strategies_enabled"], self.cfg["strategies_note"])
 
-
-def _start_strategies(host: str, port: int, model: str | None) -> None:
-    """Run the reasoning_demo live SSE server (blocking) in a background thread."""
-    try:
-        from demo.reasoning_demo.liveserver import serve as serve_strategies
-        serve_strategies(model=model, host=host, port=port)
-    except Exception as e:  # port in use, import error, etc. — don't kill the launcher
-        print(f"[strategies] server stopped: {type(e).__name__}: {e}")
+    def strategies(self):
+        """Lazily build the live-strategies backend (LLM + problems) on first hit."""
+        if self._strat is None:
+            from demo.reasoning_demo.client import LLM
+            from demo.reasoning_demo.data import load_problems
+            self._strat = (LLM(model=self.cfg["strategies_model"]),
+                           load_problems(), liveserver.DEFAULTS)
+        return self._strat
 
 
 def serve(host: str, port: int, cfg: dict) -> None:
     httpd = Server((host, port), cfg)
     url = f"http://{host}:{port}/"
+    routes = "/  ·  /game24  ·  /protocols" + ("  ·  /strategies" if cfg["strategies_enabled"] else "")
     print(f"Tutorial demos on {url}  "
           f"(game24: {cfg['model']} · {' '.join(map(str, cfg['puzzle']))})")
-    if cfg["strategies_url"]:
-        print(f"  · reasoning strategies (live) on {cfg['strategies_url']}")
-    print("Routes: /  ·  /game24  ·  /protocols   — press Ctrl-C to stop.")
+    if cfg["strategies_enabled"]:
+        print(f"  · reasoning strategies (live) on {url}strategies")
+    elif cfg["strategies_note"]:
+        print(f"  · strategies: {cfg['strategies_note']}")
+    print(f"Routes: {routes}   — press Ctrl-C to stop.")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
@@ -238,44 +260,36 @@ def main():
     ap.add_argument("--puzzle", default="6 6 7 12", help="Game24: the four numbers")
     ap.add_argument("--target", type=int, default=24, help="Game24: the target value")
     ap.add_argument("--no-strategies", action="store_true",
-                    help="don't start the live reasoning-strategies server")
-    ap.add_argument("--strategies-port", type=int, default=8000,
-                    help="port for the live strategies server (default: 8000)")
+                    help="don't serve the live reasoning-strategies demo")
     ap.add_argument("--strategies-model", default=None,
                     help="OpenRouter model id for the strategies demo (default: MODEL env)")
     args = ap.parse_args()
 
-    # The strategies server runs models live, so it needs a key; skip it gracefully
+    # The strategies demo runs models live, so it needs a key; skip it gracefully
     # otherwise and mark its index card disabled with the reason.
-    strategies_url = strategies_note = None
-    if not args.no_strategies:
-        if os.getenv("OPENROUTER_API_KEY"):
-            strategies_url = f"http://{args.host}:{args.strategies_port}/"
-            threading.Thread(
-                target=_start_strategies,
-                args=(args.host, args.strategies_port, args.strategies_model),
-                daemon=True).start()
-        else:
-            strategies_note = "needs OPENROUTER_API_KEY in your environment or .env"
+    if args.no_strategies:
+        strategies_enabled, strategies_note = False, "disabled with --no-strategies"
+    elif not os.getenv("OPENROUTER_API_KEY"):
+        strategies_enabled, strategies_note = False, "needs OPENROUTER_API_KEY in your environment or .env"
     else:
-        strategies_note = "disabled with --no-strategies"
+        strategies_enabled, strategies_note = True, None
 
     cfg = {
         "model": args.model,
         "puzzle": tuple(int(x) for x in args.puzzle.split()),
         "target": args.target,
-        "strategies_url": strategies_url,
+        "strategies_enabled": strategies_enabled,
         "strategies_note": strategies_note,
+        "strategies_model": args.strategies_model,
     }
 
     open_to = args.open
-    if open_to == "strategies" and not strategies_url:
-        print("[strategies] not running; opening the index instead.")
+    if open_to == "strategies" and not strategies_enabled:
+        print("[strategies] not available; opening the index instead.")
         open_to = "index"
-    routes = {"index": f"http://{args.host}:{args.port}/",
-              "game24": f"http://{args.host}:{args.port}/game24",
-              "protocols": f"http://{args.host}:{args.port}/protocols",
-              "strategies": strategies_url}
+    base = f"http://{args.host}:{args.port}"
+    routes = {"index": base + "/", "game24": base + "/game24",
+              "protocols": base + "/protocols", "strategies": base + "/strategies"}
     if not args.no_open:
         target = routes[open_to]
         threading.Timer(1.5, lambda: webbrowser.open(target)).start()
