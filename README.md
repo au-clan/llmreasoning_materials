@@ -44,13 +44,17 @@ and the precomputed s1.1 results in `repos/` — only the live cells call OpenRo
 
 ## Part 2 — Live reasoning-strategies demo
 
-Three test-time reasoning strategies on **GSM8K**, compared under a latency budget:
+Seven test-time reasoning strategies on **GSM8K**, compared under a latency budget:
 
 | Strategy | What it does | Latency knob | Why it costs latency |
 |---|---|---|---|
-| **Iterative** (self-refine) | Answer, then critique-and-revise N times | `rounds` | Strictly **sequential** |
+| **Input–output** (direct) | Send the question, read back the answer — one call, no reasoning scaffold | *(none)* | The baseline floor: a single point |
 | **Self-consistency** | Sample K chains, majority vote | `k` | Chains run **in parallel** → latency ≈ slowest chain |
-| **Agentic** (tool use) | Reason + call a calculator until confident | `max_steps` | Sequential tool-call turns |
+| **ReAct** (Yao et al. 2022) | Interleave Thought → Action → Observation in a text protocol; `Calculate[…]` / `Finish[…]` actions until done | `max_steps` | Sequential thought→action turns |
+| **Agent** (tool-use) | Reason + call a calculator via the native function-calling API until confident | `max_steps` | Sequential tool-call turns |
+| **Self-Refine** (Madaan et al. 2023) | Answer, then each round give explicit feedback on the draft and refine it, up to N rounds | `rounds` | Strictly **sequential** (feedback then refine each round) |
+| **Tree of Thoughts** | Beam-search: expand several next-steps per level, score, prune to the best | `depth` | Branches fan out **in parallel** per level; `depth` levels run **sequentially** |
+| **Fleet of Agents** (Klein & Potamitis) | Particle filter: a fleet of N agents each extend a trajectory, get value-scored, then **resampled** (good clones, bad die) every step | `n_agents` | Fleet steps **in parallel**; resampling concentrates compute on promising paths |
 
 The headline artifact is an **accuracy-vs-latency Pareto plot**: read it at any
 latency budget to see which strategy wins there.
@@ -77,8 +81,8 @@ uv run python run_demo.py live --no-open --port 8011 # headless / custom port
 **Knobs to turn live:**
 - `--model` — swap the backing model (smaller models make self-consistency and
   tools matter more).
-- `--strategies iterative,agentic` — restrict the sweep to save time on stage.
-- Sweep ranges live in `reasoning_demo/strategies.py` (`STRATEGIES` registry).
+- `--strategies iterative,tree_of_thoughts,fleet_of_agents` — restrict the sweep to save time on stage.
+- Sweep ranges live in `demo/reasoning_demo/strategies.py` (`STRATEGIES` registry).
 
 The punchline: **there is no single best strategy** — the winner depends on
 whether your budget is *latency*, *tokens*, or *dollars*.
@@ -88,17 +92,23 @@ whether your budget is *latency*, *tokens*, or *dollars*.
 ## Layout
 
 ```
-crosslingual_demo.ipynb    # Part 1 notebook
+notebook.ipynb             # Part 1 stage notebook (crosslingual + instability)
 run_demo.py                # Part 2 CLI: demo | bench | plot | trace | live
-reasoning_demo/
-  client.py                # OpenRouter wrapper (sync + async), latency/token accounting
-  mgsm.py                  # Part 1: faithful MGSM eval + solvers
-  traces.py                # Part 1: load real s1.1 traces, highlight CoT by script
-  strategies.py            # Part 2: the three strategies + sweep registry
-  bench.py / plot.py       # Part 2: budget sweep -> results.json -> pareto.png
-  extract.py / tools.py    # Part 2: answer parsing, majority vote, calculator tool
-  tracevis.py / liveserver.py  # Part 2: static + live SSE trace explorers
-  data.py                  # GSM8K loader (bundled sample or HF)
+demo/                      # all live demo material, one launcher
+  serve.py                 # unified launcher: `uv run python demo/serve.py`
+  reasoning_demo/          # §2.1 — test-time reasoning strategies engine
+    client.py              # OpenRouter wrapper (sync + async), latency/token accounting
+    mgsm.py                # Part 1: faithful MGSM eval + solvers
+    traces.py              # Part 1: load real s1.1 traces, highlight CoT by script
+    strategies.py          # Part 2: the seven strategies + sweep registry
+    bench.py / plot.py     # Part 2: budget sweep -> results.json -> pareto.png
+    extract.py / tools.py  # Part 2: answer parsing, majority vote, calculator tool
+    tracevis.py / liveserver.py  # Part 2: static + live SSE trace explorers
+    data.py                # GSM8K loader (bundled sample or HF)
+  instability/             # §1 — consistency/instability eval views (+ logs, models.parquet)
+    attempts.py            # parse + re-grade repeated Game24 attempts
+    consistency.py         # seed-variance grid over models.parquet
+    game24_tree.py / protocols_app.py  # self-contained HTML visualizers
 data/
   gsm8k_sample.jsonl       # 12 GSM8K problems (offline-safe)
   mgsm/                    # MGSM TSVs, 250 problems/language
