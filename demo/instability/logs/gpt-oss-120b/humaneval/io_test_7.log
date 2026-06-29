@@ -1,0 +1,2799 @@
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def minSubArraySum(nums):
+    """
+    Given an array of integers nums, find the minimum sum of any non-empty sub-array
+    of nums.
+    Example
+    minSubArraySum([2, 3, 4, 1, 2, 4]) == 1
+    minSubArraySum([-1, -2, -3]) == -6
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+    if not nums:
+        raise ValueError("Input list must be non-empty")
+    current_min = best = nums[0]
+    for x in nums[1:]:
+        # Extend the previous subarray or start a new one at x
+        current_min = min(x, current_min + x)
+        best = min(best, current_min)
+    return best
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def max_fill(grid, capacity):
+    import math
+    """
+    You are given a rectangular grid of wells. Each row represents a single well,
+    and each 1 in a row represents a single unit of water.
+    Each well has a corresponding bucket that can be used to extract water from it, 
+    and all buckets have the same capacity.
+    Your task is to use the buckets to empty the wells.
+    Output the number of times you need to lower the buckets.
+
+    Example 1:
+        Input: 
+            grid : [[0,0,1,0], [0,1,0,0], [1,1,1,1]]
+            bucket_capacity : 1
+        Output: 6
+
+    Example 2:
+        Input: 
+            grid : [[0,0,1,1], [0,0,0,0], [1,1,1,1], [0,1,1,1]]
+            bucket_capacity : 2
+        Output: 5
+    
+    Example 3:
+        Input: 
+            grid : [[0,0,0], [0,0,0]]
+            bucket_capacity : 5
+        Output: 0
+
+    Constraints:
+        * all wells have the same length
+        * 1 <= grid.length <= 10^2
+        * 1 <= grid[:,1].length <= 10^2
+        * grid[i][j] -> 0 | 1
+        * 1 <= capacity <= 10
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def max_fill(grid, capacity):
+    import math
+    total_operations = 0
+    for row in grid:
+        water_units = sum(row)               # count of 1's in the well
+        # Number of bucket lowerings needed for this well
+        total_operations += math.ceil(water_units / capacity)
+    return total_operations
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def sort_array(arr):
+    """
+    In this Kata, you have to sort an array of non-negative integers according to
+    number of ones in their binary representation in ascending order.
+    For similar number of ones, sort based on decimal value.
+
+    It must be implemented like this:
+    >>> sort_array([1, 5, 2, 3, 4]) == [1, 2, 3, 4, 5]
+    >>> sort_array([-2, -3, -4, -5, -6]) == [-6, -5, -4, -3, -2]
+    >>> sort_array([1, 0, 2, 3, 4]) [0, 1, 2, 3, 4]
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def sort_array(arr):
+    """
+    In this Kata, you have to sort an array of non-negative integers according to
+    number of ones in their binary representation in ascending order.
+    For similar number of ones, sort based on decimal value.
+
+    It must be implemented like this:
+    >>> sort_array([1, 5, 2, 3, 4]) == [1, 2, 3, 4, 5]
+    >>> sort_array([-2, -3, -4, -5, -6]) == [-6, -5, -4, -3, -2]
+    >>> sort_array([1, 0, 2, 3, 4]) == [0, 1, 2, 3, 4]
+    """
+    # If the list contains any negative numbers, fall back to a plain numeric sort.
+    if any(x < 0 for x in arr):
+        return sorted(arr)
+
+    # Otherwise sort by (number of 1‑bits, value).
+    return sorted(arr, key=lambda x: (bin(x).count("1"), x))
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def select_words(s, n):
+    """Given a string s and a natural number n, you have been tasked to implement 
+    a function that returns a list of all words from string s that contain exactly 
+    n consonants, in order these words appear in the string s.
+    If the string s is empty then the function should return an empty list.
+    Note: you may assume the input string contains only letters and spaces.
+    Examples:
+    select_words("Mary had a little lamb", 4) ==> ["little"]
+    select_words("Mary had a little lamb", 3) ==> ["Mary", "lamb"]
+    select_words("simple white space", 2) ==> []
+    select_words("Hello world", 4) ==> ["world"]
+    select_words("Uncle sam", 3) ==> ["Uncle"]
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def select_words(s, n):
+    """Given a string s and a natural number n, you have been tasked to implement 
+    a function that returns a list of all words from string s that contain exactly 
+    n consonants, in order these words appear in the string s.
+    If the string s is empty then the function should return an empty list.
+    Note: you may assume the input string contains only letters and spaces.
+    Examples:
+    select_words("Mary had a little lamb", 4) ==> ["little"]
+    select_words("Mary had a little lamb", 3) ==> ["Mary", "lamb"]
+    select_words("simple white space", 2) ==> []
+    select_words("Hello world", 4) ==> ["world"]
+    select_words("Uncle sam", 3) ==> ["Uncle"]
+    """
+    # Early exit for empty string
+    if not s:
+        return []
+
+    vowels = set("aeiouAEIOU")
+    result = []
+
+    for word in s.split():
+        consonant_count = sum(1 for ch in word if ch.isalpha() and ch not in vowels)
+        if consonant_count == n:
+            result.append(word)
+
+    return result
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def get_closest_vowel(word):
+    """You are given a word. Your task is to find the closest vowel that stands between 
+    two consonants from the right side of the word (case sensitive).
+    
+    Vowels in the beginning and ending doesn't count. Return empty string if you didn't
+    find any vowel met the above condition. 
+
+    You may assume that the given string contains English letter only.
+
+    Example:
+    get_closest_vowel("yogurt") ==> "u"
+    get_closest_vowel("FULL") ==> "U"
+    get_closest_vowel("quick") ==> ""
+    get_closest_vowel("ab") ==> ""
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def get_closest_vowel(word):
+    """You are given a word. Your task is to find the closest vowel that stands between 
+    two consonants from the right side of the word (case sensitive).
+    
+    Vowels in the beginning and ending doesn't count. Return empty string if you didn't
+    find any vowel met the above condition. 
+
+    You may assume that the given string contains English letter only.
+
+    Example:
+    get_closest_vowel("yogurt") ==> "u"
+    get_closest_vowel("FULL") ==> "U"
+    get_closest_vowel("quick") ==> ""
+    get_closest_vowel("ab") ==> ""
+    """
+    vowels = set("aeiouAEIOU")
+    # Need at least three characters to have a vowel between two consonants
+    if len(word) < 3:
+        return ""
+    # Scan from right to left, stopping before the first and last character
+    for i in range(len(word) - 2, 0, -1):
+        ch = word[i]
+        if ch in vowels:
+            left = word[i - 1]
+            right = word[i + 1]
+            if left not in vowels and right not in vowels:
+                return ch
+    return ""
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def match_parens(lst):
+    '''
+    You are given a list of two strings, both strings consist of open
+    parentheses '(' or close parentheses ')' only.
+    Your job is to check if it is possible to concatenate the two strings in
+    some order, that the resulting string will be good.
+    A string S is considered to be good if and only if all parentheses in S
+    are balanced. For example: the string '(())()' is good, while the string
+    '())' is not.
+    Return 'Yes' if there's a way to make a good string, and return 'No' otherwise.
+
+    Examples:
+    match_parens(['()(', ')']) == 'Yes'
+    match_parens([')', ')']) == 'No'
+    '''
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def match_parens(lst):
+    """
+    You are given a list of two strings, both strings consist of open
+    parentheses '(' or close parentheses ')' only.
+    Your job is to check if it is possible to concatenate the two strings in
+    some order, that the resulting string will be good.
+    A string S is considered to be good if and only if all parentheses in S
+    are balanced. For example: the string '(())()' is good, while the string
+    '())' is not.
+    Return 'Yes' if there's a way to make a good string, and return 'No' otherwise.
+
+    Examples:
+    match_parens(['()(', ')']) == 'Yes'
+    match_parens([')', ')']) == 'No'
+    """
+    def is_balanced(s: str) -> bool:
+        """Return True if parentheses string s is balanced."""
+        balance = 0
+        for ch in s:
+            if ch == '(':
+                balance += 1
+            else:  # ch == ')'
+                balance -= 1
+            if balance < 0:
+                return False
+        return balance == 0
+
+    if len(lst) != 2:
+        raise ValueError("Input must be a list of exactly two strings.")
+
+    s1, s2 = lst[0], lst[1]
+
+    # Check both possible concatenations
+    if is_balanced(s1 + s2) or is_balanced(s2 + s1):
+        return 'Yes'
+    return 'No'
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def maximum(arr, k):
+    """
+    Given an array arr of integers and a positive integer k, return a sorted list 
+    of length k with the maximum k numbers in arr.
+
+    Example 1:
+
+        Input: arr = [-3, -4, 5], k = 3
+        Output: [-4, -3, 5]
+
+    Example 2:
+
+        Input: arr = [4, -4, 4], k = 2
+        Output: [4, 4]
+
+    Example 3:
+
+        Input: arr = [-3, 2, 1, 2, -1, -2, 1], k = 1
+        Output: [2]
+
+    Note:
+        1. The length of the array will be in the range of [1, 1000].
+        2. The elements in the array will be in the range of [-1000, 1000].
+        3. 0 <= k <= len(arr)
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def maximum(arr, k):
+    """
+    Given an array arr of integers and a positive integer k, return a sorted list 
+    of length k with the maximum k numbers in arr.
+
+    Example 1:
+
+        Input: arr = [-3, -4, 5], k = 3
+        Output: [-4, -3, 5]
+
+    Example 2:
+
+        Input: arr = [4, -4, 4], k = 2
+        Output: [4, 4]
+
+    Example 3:
+
+        Input: arr = [-3, 2, 1, 2, -1, -2, 1], k = 1
+        Output: [2]
+
+    Note:
+        1. The length of the array will be in the range of [1, 1000].
+        2. The elements in the array will be in the range of [-1000, 1000].
+        3. 0 <= k <= len(arr)
+    """
+    # Edge case: if k is 0, return an empty list
+    if k == 0:
+        return []
+
+    # Use Python's built‑in sorting to get the k largest elements.
+    # Sorting the whole list once is acceptable for the given constraints (n ≤ 1000).
+    # We sort in descending order, take the first k elements, then sort them
+    # in ascending order to meet the required output format.
+    largest_k_desc = sorted(arr, reverse=True)[:k]
+    result = sorted(largest_k_desc)
+    return result
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def solution(lst):
+    """Given a non-empty list of integers, return the sum of all of the odd elements that are in even positions.
+    
+
+    Examples
+    solution([5, 8, 7, 1]) ==> 12
+    solution([3, 3, 3, 3, 3]) ==> 9
+    solution([30, 13, 24, 321]) ==>0
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def solution(lst):
+    """Given a non-empty list of integers, return the sum of all of the odd elements that are in even positions.
+    
+
+    Examples
+    solution([5, 8, 7, 1]) ==> 12
+    solution([3, 3, 3, 3, 3]) ==> 9
+    solution([30, 13, 24, 321]) ==>0
+    """
+    return sum(x for i, x in enumerate(lst) if i % 2 == 0 and x % 2 != 0)
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def add_elements(arr, k):
+    """
+    Given a non-empty array of integers arr and an integer k, return
+    the sum of the elements with at most two digits from the first k elements of arr.
+
+    Example:
+
+        Input: arr = [111,21,3,4000,5,6,7,8,9], k = 4
+        Output: 24 # sum of 21 + 3
+
+    Constraints:
+        1. 1 <= len(arr) <= 100
+        2. 1 <= k <= len(arr)
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+    total = 0
+    for num in arr[:k]:
+        if -99 <= num <= 99:
+            total += num
+    return total
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def get_odd_collatz(n):
+    """
+    Given a positive integer n, return a sorted list that has the odd numbers in collatz sequence.
+
+    The Collatz conjecture is a conjecture in mathematics that concerns a sequence defined
+    as follows: start with any positive integer n. Then each term is obtained from the 
+    previous term as follows: if the previous term is even, the next term is one half of 
+    the previous term. If the previous term is odd, the next term is 3 times the previous
+    term plus 1. The conjecture is that no matter what value of n, the sequence will always reach 1.
+
+    Note: 
+        1. Collatz(1) is [1].
+        2. returned list sorted in increasing order.
+
+    For example:
+    get_odd_collatz(5) returns [1, 5] # The collatz sequence for 5 is [5, 16, 8, 4, 2, 1], so the odd numbers are only 1, and 5.
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+    odds = set()
+    current = n
+    while True:
+        if current % 2 == 1:
+            odds.add(current)
+        if current == 1:
+            break
+        if current % 2 == 0:
+            current //= 2
+        else:
+            current = 3 * current + 1
+    return sorted(odds)
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def valid_date(date):
+    """You have to write a function which validates a given date string and
+    returns True if the date is valid otherwise False.
+    The date is valid if all of the following rules are satisfied:
+    1. The date string is not empty.
+    2. The number of days is not less than 1 or higher than 31 days for months 1,3,5,7,8,10,12. And the number of days is not less than 1 or higher than 30 days for months 4,6,9,11. And, the number of days is not less than 1 or higher than 29 for the month 2.
+    3. The months should not be less than 1 or higher than 12.
+    4. The date should be in the format: mm-dd-yyyy
+
+    for example: 
+    valid_date('03-11-2000') => True
+
+    valid_date('15-01-2012') => False
+
+    valid_date('04-0-2040') => False
+
+    valid_date('06-04-2020') => True
+
+    valid_date('06/04/2020') => False
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def valid_date(date):
+    """You have to write a function which validates a given date string and
+    returns True if the date is valid otherwise False.
+    The date is valid if all of the following rules are satisfied:
+    1. The date string is not empty.
+    2. The number of days is not less than 1 or higher than 31 days for months 1,3,5,7,8,10,12. And the number of days is not less than 1 or higher than 30 days for months 4,6,9,11. And, the number of days is not less than 1 or higher than 29 for the month 2.
+    3. The months should not be less than 1 or higher than 12.
+    4. The date should be in the format: mm-dd-yyyy
+
+    for example: 
+    valid_date('03-11-2000') => True
+
+    valid_date('15-01-2012') => False
+
+    valid_date('04-0-2040') => False
+
+    valid_date('06-04-2020') => True
+
+    valid_date('06/04/2020') => False
+    """
+    # 1. Non‑empty string check
+    if not isinstance(date, str) or not date:
+        return False
+
+    # 4. Expected format mm-dd-yyyy (dash as separator)
+    parts = date.split('-')
+    if len(parts) != 3:
+        return False
+
+    month_str, day_str, year_str = parts
+
+    # All parts must be numeric
+    if not (month_str.isdigit() and day_str.isdigit() and year_str.isdigit()):
+        return False
+
+    # Convert to integers
+    month = int(month_str)
+    day = int(day_str)
+
+    # 3. Month range check
+    if month < 1 or month > 12:
+        return False
+
+    # 2. Day range check based on month
+    if month in {1, 3, 5, 7, 8, 10, 12}:
+        max_day = 31
+    elif month in {4, 6, 9, 11}:
+        max_day = 30
+    else:  # February
+        max_day = 29
+
+    if day < 1 or day > max_day:
+        return False
+
+    # If all checks passed, the date is valid
+    return True
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def split_words(txt):
+    '''
+    Given a string of words, return a list of words split on whitespace, if no whitespaces exists in the text you
+    should split on commas ',' if no commas exists you should return the number of lower-case letters with odd order in the
+    alphabet, ord('a') = 0, ord('b') = 1, ... ord('z') = 25
+    Examples
+    split_words("Hello world!") ➞ ["Hello", "world!"]
+    split_words("Hello,world!") ➞ ["Hello", "world!"]
+    split_words("abcdef") == 3 
+    '''
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def split_words(txt):
+    """
+    Given a string of words, return a list of words split on whitespace, if no whitespaces exists in the text you
+    should split on commas ',' if no commas exists you should return the number of lower-case letters with odd order in the
+    alphabet, ord('a') = 0, ord('b') = 1, ... ord('z') = 25
+    """
+    # Case 1: split on any whitespace if present
+    if any(ch.isspace() for ch in txt):
+        return txt.split()
+
+    # Case 2: split on commas if whitespace is absent but commas exist
+    if ',' in txt:
+        # split on commas and filter out empty strings that may arise from consecutive commas
+        return [segment for segment in txt.split(',') if segment]
+
+    # Case 3: no whitespace or commas – count lower‑case letters with odd alphabetical order
+    odd_count = 0
+    for ch in txt:
+        if 'a' <= ch <= 'z':
+            if (ord(ch) - ord('a')) % 2 == 1:
+                odd_count += 1
+    return odd_count
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def is_sorted(lst):
+    '''
+    Given a list of numbers, return whether or not they are sorted
+    in ascending order. If list has more than 1 duplicate of the same
+    number, return False. Assume no negative numbers and only integers.
+
+    Examples
+    is_sorted([5]) ➞ True
+    is_sorted([1, 2, 3, 4, 5]) ➞ True
+    is_sorted([1, 3, 2, 4, 5]) ➞ False
+    is_sorted([1, 2, 3, 4, 5, 6]) ➞ True
+    is_sorted([1, 2, 3, 4, 5, 6, 7]) ➞ True
+    is_sorted([1, 3, 2, 4, 5, 6, 7]) ➞ False
+    is_sorted([1, 2, 2, 3, 3, 4]) ➞ True
+    is_sorted([1, 2, 2, 2, 3, 4]) ➞ False
+    '''
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def is_sorted(lst):
+    """
+    Given a list of numbers, return whether or not they are sorted
+    in ascending order. If list has more than 1 duplicate of the same
+    number, return False. Assume no negative numbers and only integers.
+    """
+    if not lst:
+        return True
+
+    counts = {}
+    prev = lst[0]
+    counts[prev] = 1
+
+    for num in lst[1:]:
+        # check ascending order
+        if num < prev:
+            return False
+
+        # track occurrences
+        counts[num] = counts.get(num, 0) + 1
+        if counts[num] > 2:  # more than one duplicate
+            return False
+
+        prev = num
+
+    return True
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def intersection(interval1, interval2):
+    """You are given two intervals,
+    where each interval is a pair of integers. For example, interval = (start, end) = (1, 2).
+    The given intervals are closed which means that the interval (start, end)
+    includes both start and end.
+    For each given interval, it is assumed that its start is less or equal its end.
+    Your task is to determine whether the length of intersection of these two 
+    intervals is a prime number.
+    Example, the intersection of the intervals (1, 3), (2, 4) is (2, 3)
+    which its length is 1, which not a prime number.
+    If the length of the intersection is a prime number, return "YES",
+    otherwise, return "NO".
+    If the two intervals don't intersect, return "NO".
+
+
+    [input/output] samples:
+    intersection((1, 2), (2, 3)) ==> "NO"
+    intersection((-1, 1), (0, 4)) ==> "NO"
+    intersection((-3, -1), (-5, 5)) ==> "YES"
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def intersection(interval1, interval2):
+    """You are given two intervals,
+    where each interval is a pair of integers. For example, interval = (start, end) = (1, 2).
+    The given intervals are closed which means that the interval (start, end)
+    includes both start and end.
+    For each given interval, it is assumed that its start is less or equal its end.
+    Your task is to determine whether the length of intersection of these two 
+    intervals is a prime number.
+    Example, the intersection of the intervals (1, 3), (2, 4) is (2, 3)
+    which its length is 1, which not a prime number.
+    If the length of the intersection is a prime number, return "YES",
+    otherwise, return "NO".
+    If the two intervals don't intersect, return "NO".
+
+
+    [input/output] samples:
+    intersection((1, 2), (2, 3)) ==> "NO"
+    intersection((-1, 1), (0, 4)) ==> "NO"
+    intersection((-3, -1), (-5, 5)) ==> "YES"
+    """
+    # Determine the overlapping interval
+    start1, end1 = interval1
+    start2, end2 = interval2
+    overlap_start = max(start1, start2)
+    overlap_end = min(end1, end2)
+
+    # No intersection
+    if overlap_start > overlap_end:
+        return "NO"
+
+    # Length of the closed interval (inclusive) is end - start
+    length = overlap_end - overlap_start
+
+    # Helper to test primality
+    def is_prime(n: int) -> bool:
+        if n < 2:
+            return False
+        if n == 2:
+            return True
+        if n % 2 == 0:
+            return False
+        i = 3
+        while i * i <= n:
+            if n % i == 0:
+                return False
+            i += 2
+        return True
+
+    return "YES" if is_prime(length) else "NO"
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def prod_signs(arr):
+    """
+    You are given an array arr of integers and you need to return
+    sum of magnitudes of integers multiplied by product of all signs
+    of each number in the array, represented by 1, -1 or 0.
+    Note: return None for empty arr.
+
+    Example:
+    >>> prod_signs([1, 2, 2, -4]) == -9
+    >>> prod_signs([0, 1]) == 0
+    >>> prod_signs([]) == None
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+    if not arr:
+        return None
+
+    total = 0
+    sign_product = 1
+
+    for num in arr:
+        total += abs(num)
+        if num > 0:
+            sign = 1
+        elif num < 0:
+            sign = -1
+        else:
+            sign = 0
+        sign_product *= sign
+        if sign_product == 0:
+            # Once zero is encountered, the final product will remain zero
+            # No need to continue multiplying
+            continue
+
+    return total * sign_product
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def minPath(grid, k):
+    """
+    Given a grid with N rows and N columns (N >= 2) and a positive integer k, 
+    each cell of the grid contains a value. Every integer in the range [1, N * N]
+    inclusive appears exactly once on the cells of the grid.
+
+    You have to find the minimum path of length k in the grid. You can start
+    from any cell, and in each step you can move to any of the neighbor cells,
+    in other words, you can go to cells which share an edge with you current
+    cell.
+    Please note that a path of length k means visiting exactly k cells (not
+    necessarily distinct).
+    You CANNOT go off the grid.
+    A path A (of length k) is considered less than a path B (of length k) if
+    after making the ordered lists of the values on the cells that A and B go
+    through (let's call them lst_A and lst_B), lst_A is lexicographically less
+    than lst_B, in other words, there exist an integer index i (1 <= i <= k)
+    such that lst_A[i] < lst_B[i] and for any j (1 <= j < i) we have
+    lst_A[j] = lst_B[j].
+    It is guaranteed that the answer is unique.
+    Return an ordered list of the values on the cells that the minimum path go through.
+
+    Examples:
+
+        Input: grid = [ [1,2,3], [4,5,6], [7,8,9]], k = 3
+        Output: [1, 2, 1]
+
+        Input: grid = [ [5,9,3], [4,1,6], [7,8,2]], k = 1
+        Output: [1]
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def minPath(grid, k):
+    """
+    Given a grid with N rows and N columns (N >= 2) and a positive integer k,
+    each cell of the grid contains a unique value from 1 to N*N.
+    Find the lexicographically smallest path of length k (visiting exactly k
+    cells, repetitions allowed) moving only orthogonally. The answer is unique.
+
+    The strategy is greedy:
+    * The first element of any minimal path must be the smallest value in the
+      whole grid, i.e. 1. We start from the cell that contains 1.
+    * After that, at each step we can move to any orthogonal neighbour.
+      Because we are allowed to revisit cells, once we have moved to a
+      neighbour we can always bounce back and forth between the current cell
+      and the previous one to fill the remaining steps. Therefore the only
+      restriction for the next step is to pick the smallest possible neighbour
+      value – doing so yields the lexicographically smallest continuation.
+    * This greedy choice is optimal because any later decision cannot affect an
+      earlier position in the lexicographic order.
+
+    Parameters
+    ----------
+    grid : List[List[int]]
+        Square matrix (N x N) containing a permutation of 1..N*N.
+    k : int
+        Desired path length (number of visited cells).
+
+    Returns
+    -------
+    List[int]
+        The values on the cells of the minimal path, in order.
+    """
+    n = len(grid)
+    # locate the cell containing value 1
+    for i in range(n):
+        for j in range(n):
+            if grid[i][j] == 1:
+                r, c = i, j
+                break
+        else:
+            continue
+        break
+
+    path = [1]
+
+    # directions: up, down, left, right
+    dirs = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+    for _ in range(k - 1):
+        min_val = None
+        min_pos = None
+        for dr, dc in dirs:
+            nr, nc = r + dr, c + dc
+            if 0 <= nr < n and 0 <= nc < n:
+                val = grid[nr][nc]
+                if (min_val is None) or (val < min_val):
+                    min_val = val
+                    min_pos = (nr, nc)
+        # move to the neighbour with the smallest value
+        r, c = min_pos
+        path.append(min_val)
+
+    return path
+```
+
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def tri(n):
+    """Everyone knows Fibonacci sequence, it was studied deeply by mathematicians in 
+    the last couple centuries. However, what people don't know is Tribonacci sequence.
+    Tribonacci sequence is defined by the recurrence:
+    tri(1) = 3
+    tri(n) = 1 + n / 2, if n is even.
+    tri(n) =  tri(n - 1) + tri(n - 2) + tri(n + 1), if n is odd.
+    For example:
+    tri(2) = 1 + (2 / 2) = 2
+    tri(4) = 3
+    tri(3) = tri(2) + tri(1) + tri(4)
+           = 2 + 3 + 3 = 8 
+    You are given a non-negative integer number n, you have to a return a list of the 
+    first n + 1 numbers of the Tribonacci sequence.
+    Examples:
+    tri(3) = [1, 3, 2, 8]
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def tri(n):
+    """Everyone knows Fibonacci sequence, it was studied deeply by mathematicians in 
+    the last couple centuries. However, what people don't know is Tribonacci sequence.
+    Tribonacci sequence is defined by the recurrence:
+    tri(1) = 3
+    tri(n) = 1 + n / 2, if n is even.
+    tri(n) =  tri(n - 1) + tri(n - 2) + tri(n + 1), if n is odd.
+    For example:
+    tri(2) = 1 + (2 / 2) = 2
+    tri(4) = 3
+    tri(3) = tri(2) + tri(1) + tri(4)
+           = 2 + 3 + 3 = 8 
+    You are given a non-negative integer number n, you have to a return a list of the 
+    first n + 1 numbers of the Tribonacci sequence.
+    Examples:
+    tri(3) = [1, 3, 2, 8]
+    """
+    # Prepare a list to hold values from tri(0) up to tri(n)
+    result = [0] * (n + 1)
+
+    for i in range(n + 1):
+        if i % 2 == 0:
+            # Even index: direct formula 1 + i/2 (integer division)
+            result[i] = 1 + i // 2
+        else:
+            if i == 1:
+                # Base case for the odd index 1
+                result[i] = 3
+            else:
+                # For odd i > 1, use the recurrence:
+                # tri(i) = tri(i-1) + tri(i-2) + tri(i+1)
+                # Since i+1 is even, tri(i+1) can be computed directly.
+                tri_i_plus_1 = 1 + (i + 1) // 2
+                result[i] = result[i - 1] + result[i - 2] + tri_i_plus_1
+
+    return result
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def digits(n):
+    """Given a positive integer n, return the product of the odd digits.
+    Return 0 if all digits are even.
+    For example:
+    digits(1)  == 1
+    digits(4)  == 0
+    digits(235) == 15
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+    product = 1
+    has_odd = False
+    while n > 0:
+        digit = n % 10
+        if digit % 2 == 1:
+            product *= digit
+            has_odd = True
+        n //= 10
+    return product if has_odd else 0
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def is_nested(string):
+    '''
+    Create a function that takes a string as input which contains only square brackets.
+    The function should return True if and only if there is a valid subsequence of brackets 
+    where at least one bracket in the subsequence is nested.
+
+    is_nested('[[]]') ➞ True
+    is_nested('[]]]]]]][[[[[]') ➞ False
+    is_nested('[][]') ➞ False
+    is_nested('[]') ➞ False
+    is_nested('[[][]]') ➞ True
+    is_nested('[[]][[') ➞ True
+    '''
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def is_nested(string):
+    """
+    Return True if the input string (containing only '[' and ']') has a valid
+    subsequence of brackets that includes at least one nesting.
+    This is equivalent to checking whether the subsequence "[[]]" exists.
+    """
+    # Find the first '['
+    try:
+        first_open = string.index('[')
+    except ValueError:
+        return False
+
+    # Find a second '[' after the first one
+    try:
+        second_open = string.index('[', first_open + 1)
+    except ValueError:
+        return False
+
+    # Find a ']' after the second '['
+    try:
+        first_close = string.index(']', second_open + 1)
+    except ValueError:
+        return False
+
+    # Find another ']' after the first closing bracket
+    try:
+        second_close = string.index(']', first_close + 1)
+    except ValueError:
+        return False
+
+    # All parts of "[[]]" were found in order → nesting exists
+    return True
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+
+def sum_squares(lst):
+    """You are given a list of numbers.
+    You need to return the sum of squared numbers in the given list,
+    round each element in the list to the upper int(Ceiling) first.
+    Examples:
+    For lst = [1,2,3] the output should be 14
+    For lst = [1,4,9] the output should be 98
+    For lst = [1,3,5,7] the output should be 84
+    For lst = [1.4,4.2,0] the output should be 29
+    For lst = [-2.4,1,1] the output should be 6
+    
+
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def sum_squares(lst):
+    """You are given a list of numbers.
+    You need to return the sum of squared numbers in the given list,
+    round each element in the list to the upper int(Ceiling) first.
+    Examples:
+    For lst = [1,2,3] the output should be 14
+    For lst = [1,4,9] the output should be 98
+    For lst = [1,3,5,7] the output should be 84
+    For lst = [1.4,4.2,0] the output should be 29
+    For lst = [-2.4,1,1] the output should be 6
+    
+
+    """
+    import math
+    return sum(math.ceil(x) ** 2 for x in lst)
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def check_if_last_char_is_a_letter(txt):
+    '''
+    Create a function that returns True if the last character
+    of a given string is an alphabetical character and is not
+    a part of a word, and False otherwise.
+    Note: "word" is a group of characters separated by space.
+
+    Examples:
+    check_if_last_char_is_a_letter("apple pie") ➞ False
+    check_if_last_char_is_a_letter("apple pi e") ➞ True
+    check_if_last_char_is_a_letter("apple pi e ") ➞ False
+    check_if_last_char_is_a_letter("") ➞ False 
+    '''
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def check_if_last_char_is_a_letter(txt):
+    '''
+    Create a function that returns True if the last character
+    of a given string is an alphabetical character and is not
+    a part of a word, and False otherwise.
+    Note: "word" is a group of characters separated by space.
+
+    Examples:
+    check_if_last_char_is_a_letter("apple pie") ➞ False
+    check_if_last_char_is_a_letter("apple pi e") ➞ True
+    check_if_last_char_is_a_letter("apple pi e ") ➞ False
+    check_if_last_char_is_a_letter("") ➞ False 
+    '''
+    # Return False for empty strings
+    if not txt:
+        return False
+
+    # The last character must be a letter
+    if not txt[-1].isalpha():
+        return False
+
+    # If the string has only one character, it's a single-letter word
+    if len(txt) == 1:
+        return True
+
+    # For longer strings, the character before the last must be a space
+    return txt[-2] == ' '
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def can_arrange(arr):
+    """Create a function which returns the largest index of an element which
+    is not greater than or equal to the element immediately preceding it. If
+    no such element exists then return -1. The given array will not contain
+    duplicate values.
+
+    Examples:
+    can_arrange([1,2,4,3,5]) = 3
+    can_arrange([1,2,3]) = -1
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def can_arrange(arr):
+    """
+    Returns the largest index i such that arr[i] < arr[i-1].
+    If no such index exists, returns -1.
+
+    Examples:
+    >>> can_arrange([1, 2, 4, 3, 5])
+    3
+    >>> can_arrange([1, 2, 3])
+    -1
+    """
+    last_idx = -1
+    for i in range(1, len(arr)):
+        if arr[i] < arr[i - 1]:
+            last_idx = i
+    return last_idx
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def largest_smallest_integers(lst):
+    '''
+    Create a function that returns a tuple (a, b), where 'a' is
+    the largest of negative integers, and 'b' is the smallest
+    of positive integers in a list.
+    If there is no negative or positive integers, return them as None.
+
+    Examples:
+    largest_smallest_integers([2, 4, 1, 3, 5, 7]) == (None, 1)
+    largest_smallest_integers([]) == (None, None)
+    largest_smallest_integers([0]) == (None, None)
+    '''
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def largest_smallest_integers(lst):
+    """
+    Create a function that returns a tuple (a, b), where 'a' is
+    the largest of negative integers, and 'b' is the smallest
+    of positive integers in a list.
+    If there is no negative or positive integers, return them as None.
+
+    Examples:
+    largest_smallest_integers([2, 4, 1, 3, 5, 7]) == (None, 1)
+    largest_smallest_integers([]) == (None, None)
+    largest_smallest_integers([0]) == (None, None)
+    """
+    largest_negative = None
+    smallest_positive = None
+
+    for x in lst:
+        if isinstance(x, int):
+            if x < 0:
+                if largest_negative is None or x > largest_negative:
+                    largest_negative = x
+            elif x > 0:
+                if smallest_positive is None or x < smallest_positive:
+                    smallest_positive = x
+
+    return (largest_negative, smallest_positive)
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def compare_one(a, b):
+    """
+    Create a function that takes integers, floats, or strings representing
+    real numbers, and returns the larger variable in its given variable type.
+    Return None if the values are equal.
+    Note: If a real number is represented as a string, the floating point might be . or ,
+
+    compare_one(1, 2.5) ➞ 2.5
+    compare_one(1, "2,3") ➞ "2,3"
+    compare_one("5,1", "6") ➞ "6"
+    compare_one("1", 1) ➞ None
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def compare_one(a, b):
+    """
+    Create a function that takes integers, floats, or strings representing
+    real numbers, and returns the larger variable in its given variable type.
+    Return None if the values are equal.
+    Note: If a real number is represented as a string, the floating point might be . or ,
+
+    compare_one(1, 2.5) ➞ 2.5
+    compare_one(1, "2,3") ➞ "2,3"
+    compare_one("5,1", "6") ➞ "6"
+    compare_one("1", 1) ➞ None
+    """
+    def to_float(val):
+        """Convert int/float or numeric string (with '.' or ',') to float."""
+        if isinstance(val, str):
+            # Replace comma with dot for decimal separator and strip spaces
+            try:
+                return float(val.replace(",", ".").strip())
+            except ValueError:
+                raise ValueError(f"Unable to convert string '{val}' to float.")
+        # int or float
+        return float(val)
+
+    # Obtain numeric representations
+    num_a = to_float(a)
+    num_b = to_float(b)
+
+    # Equality check
+    if num_a == num_b:
+        return None
+
+    # Return the original argument that is numerically larger
+    return a if num_a > num_b else b
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def is_equal_to_sum_even(n):
+    """Evaluate whether the given number n can be written as the sum of exactly 4 positive even numbers
+    Example
+    is_equal_to_sum_even(4) == False
+    is_equal_to_sum_even(6) == False
+    is_equal_to_sum_even(8) == True
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def is_equal_to_sum_even(n):
+    """Evaluate whether the given number n can be written as the sum of exactly 4 positive even numbers
+    Example
+    is_equal_to_sum_even(4) == False
+    is_equal_to_sum_even(6) == False
+    is_equal_to_sum_even(8) == True
+    """
+    # A positive even number is at least 2.
+    # The smallest sum of four positive even numbers is 2+2+2+2 = 8.
+    # For any even n >= 8 we can use 2, 2, 2, and (n-6) which is also even and >= 2.
+    return n % 2 == 0 and n >= 8
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def special_factorial(n):
+    """The Brazilian factorial is defined as:
+    brazilian_factorial(n) = n! * (n-1)! * (n-2)! * ... * 1!
+    where n > 0
+
+    For example:
+    >>> special_factorial(4)
+    288
+
+    The function will receive an integer as input and should return the special
+    factorial of this integer.
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+    if n <= 0:
+        raise ValueError("n must be positive")
+    total = 1
+    fact = 1
+    for i in range(1, n + 1):
+        fact *= i
+        total *= fact
+    return total
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def fix_spaces(text):
+    """
+    Given a string text, replace all spaces in it with underscores, 
+    and if a string has more than 2 consecutive spaces, 
+    then replace all consecutive spaces with - 
+    
+    fix_spaces("Example") == "Example"
+    fix_spaces("Example 1") == "Example_1"
+    fix_spaces(" Example 2") == "_Example_2"
+    fix_spaces(" Example   3") == "_Example-3"
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def fix_spaces(text):
+    """
+    Given a string text, replace all spaces in it with underscores, 
+    and if a string has more than 2 consecutive spaces, 
+    then replace all consecutive spaces with - 
+    
+    fix_spaces("Example") == "Example"
+    fix_spaces("Example 1") == "Example_1"
+    fix_spaces(" Example 2") == "_Example_2"
+    fix_spaces(" Example   3") == "_Example-3"
+    """
+    import re
+
+    # Replace any run of three or more spaces with a single hyphen
+    text = re.sub(r' {3,}', '-', text)
+
+    # Replace all remaining single spaces with underscores
+    return text.replace(' ', '_')
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def file_name_check(file_name):
+    """Create a function which takes a string representing a file's name, and returns
+    'Yes' if the the file's name is valid, and returns 'No' otherwise.
+    A file's name is considered to be valid if and only if all the following conditions 
+    are met:
+    - There should not be more than three digits ('0'-'9') in the file's name.
+    - The file's name contains exactly one dot '.'
+    - The substring before the dot should not be empty, and it starts with a letter from 
+    the latin alphapet ('a'-'z' and 'A'-'Z').
+    - The substring after the dot should be one of these: ['txt', 'exe', 'dll']
+    Examples:
+    file_name_check("example.txt") # => 'Yes'
+    file_name_check("1example.dll") # => 'No' (the name should start with a latin alphapet letter)
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+    # Count digits in the entire filename
+    digit_count = sum(c.isdigit() for c in file_name)
+    if digit_count > 3:
+        return 'No'
+
+    # There must be exactly one dot
+    if file_name.count('.') != 1:
+        return 'No'
+
+    name_part, ext_part = file_name.split('.')
+    
+    # Substring before the dot must be non‑empty and start with a latin letter
+    if not name_part:
+        return 'No'
+    if not name_part[0].isalpha() or not name_part[0].isascii():
+        return 'No'
+
+    # Extension must be one of the allowed values
+    if ext_part not in {'txt', 'exe', 'dll'}:
+        return 'No'
+
+    return 'Yes'
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+
+
+def sum_squares(lst):
+    """"
+    This function will take a list of integers. For all entries in the list, the function shall square the integer entry if its index is a 
+    multiple of 3 and will cube the integer entry if its index is a multiple of 4 and not a multiple of 3. The function will not 
+    change the entries in the list whose indexes are not a multiple of 3 or 4. The function shall then return the sum of all entries. 
+    
+    Examples:
+    For lst = [1,2,3] the output should be 6
+    For lst = []  the output should be 0
+    For lst = [-1,-5,2,-1,-5]  the output should be -126
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def sum_squares(lst):
+    """"
+    This function will take a list of integers. For all entries in the list, the function shall square the integer entry if its index is a 
+    multiple of 3 and will cube the integer entry if its index is a multiple of 4 and not a multiple of 3. The function will not 
+    change the entries in the list whose indexes are not a multiple of 3 or 4. The function shall then return the sum of all entries. 
+    
+    Examples:
+    For lst = [1,2,3] the output should be 6
+    For lst = []  the output should be 0
+    For lst = [-1,-5,2,-1,-5]  the output should be -126
+    """
+    total = 0
+    for i, val in enumerate(lst):
+        if i % 3 == 0:
+            total += val ** 2
+        elif i % 4 == 0:
+            total += val ** 3
+        else:
+            total += val
+    return total
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def words_in_sentence(sentence):
+    """
+    You are given a string representing a sentence,
+    the sentence contains some words separated by a space,
+    and you have to return a string that contains the words from the original sentence,
+    whose lengths are prime numbers,
+    the order of the words in the new string should be the same as the original one.
+
+    Example 1:
+        Input: sentence = "This is a test"
+        Output: "is"
+
+    Example 2:
+        Input: sentence = "lets go for swimming"
+        Output: "go for"
+
+    Constraints:
+        * 1 <= len(sentence) <= 100
+        * sentence contains only letters
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+    def is_prime(n):
+        if n < 2:
+            return False
+        if n == 2:
+            return True
+        if n % 2 == 0:
+            return False
+        i = 3
+        while i * i <= n:
+            if n % i == 0:
+                return False
+            i += 2
+        return True
+
+    words = sentence.split()
+    prime_words = [w for w in words if is_prime(len(w))]
+    return " ".join(prime_words)
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def simplify(x, n):
+    """Your task is to implement a function that will simplify the expression
+    x * n. The function returns True if x * n evaluates to a whole number and False
+    otherwise. Both x and n, are string representation of a fraction, and have the following format,
+    <numerator>/<denominator> where both numerator and denominator are positive whole numbers.
+
+    You can assume that x, and n are valid fractions, and do not have zero as denominator.
+
+    simplify("1/5", "5/1") = True
+    simplify("1/6", "2/1") = False
+    simplify("7/10", "10/2") = False
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+    # Parse the fractions
+    num_x, den_x = map(int, x.split('/'))
+    num_n, den_n = map(int, n.split('/'))
+    
+    # Compute product numerator and denominator
+    prod_num = num_x * num_n
+    prod_den = den_x * den_n
+    
+    # Check if the product is a whole number
+    return prod_num % prod_den == 0
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def order_by_points(nums):
+    """
+    Write a function which sorts the given list of integers
+    in ascending order according to the sum of their digits.
+    Note: if there are several items with similar sum of their digits,
+    order them based on their index in original list.
+
+    For example:
+    >>> order_by_points([1, 11, -1, -11, -12]) == [-1, -11, 1, -12, 11]
+    >>> order_by_points([]) == []
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def order_by_points(nums):
+    """
+    Write a function which sorts the given list of integers
+    in ascending order according to the sum of their digits.
+    Note: if there are several items with similar sum of their digits,
+    order them based on their index in original list.
+
+    For example:
+    >>> order_by_points([1, 11, -1, -11, -12]) == [-1, -11, 1, -12, 11]
+    >>> order_by_points([]) == []
+    """
+    # Helper to compute the sum of digits of an integer (ignoring sign)
+    def digit_sum(n):
+        return sum(int(d) for d in str(abs(n)))
+
+    # Python's sort is stable, so items with equal digit sums will keep
+    # their original relative order.
+    return sorted(nums, key=digit_sum)
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def specialFilter(nums):
+    """Write a function that takes an array of numbers as input and returns 
+    the number of elements in the array that are greater than 10 and both 
+    first and last digits of a number are odd (1, 3, 5, 7, 9).
+    For example:
+    specialFilter([15, -73, 14, -15]) => 1 
+    specialFilter([33, -2, -3, 45, 21, 109]) => 2
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+    count = 0
+    for n in nums:
+        if n > 10:
+            val = abs(n)
+            last = val % 10
+            first = val
+            while first >= 10:
+                first //= 10
+            if first % 2 == 1 and last % 2 == 1:
+                count += 1
+    return count
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def get_max_triples(n):
+    """
+    You are given a positive integer n. You have to create an integer array a of length n.
+        For each i (1 ≤ i ≤ n), the value of a[i] = i * i - i + 1.
+        Return the number of triples (a[i], a[j], a[k]) of a where i < j < k, 
+    and a[i] + a[j] + a[k] is a multiple of 3.
+
+    Example :
+        Input: n = 5
+        Output: 1
+        Explanation: 
+        a = [1, 3, 7, 13, 21]
+        The only valid triple is (1, 7, 13).
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def get_max_triples(n):
+    """
+    You are given a positive integer n. You have to create an integer array a of length n.
+        For each i (1 ≤ i ≤ n), the value of a[i] = i * i - i + 1.
+        Return the number of triples (a[i], a[j], a[k]) of a where i < j < k, 
+    and a[i] + a[j] + a[k] is a multiple of 3.
+
+    Example :
+        Input: n = 5
+        Output: 1
+        Explanation: 
+        a = [1, 3, 7, 13, 21]
+        The only valid triple is (1, 7, 13).
+    """
+    # Count how many a[i] are congruent to 0 (mod 3) and 1 (mod 3).
+    # From a[i] = i*i - i + 1 we have:
+    #   i % 3 == 2  -> a[i] % 3 == 0
+    #   i % 3 == 0 or 1 -> a[i] % 3 == 1
+    # No element is congruent to 2 (mod 3).
+    c0 = (n + 1) // 3                      # number of i with i % 3 == 2
+    c1 = n - c0                            # remaining elements are ≡ 1 (mod 3)
+
+    # Helper to compute nC3 safely
+    def nC3(x):
+        return x * (x - 1) * (x - 2) // 6 if x >= 3 else 0
+
+    # Valid triples are either all three residues 0 or all three residues 1
+    return nC3(c0) + nC3(c1)
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def bf(planet1, planet2):
+    '''
+    There are eight planets in our solar system: the closerst to the Sun 
+    is Mercury, the next one is Venus, then Earth, Mars, Jupiter, Saturn, 
+    Uranus, Neptune.
+    Write a function that takes two planet names as strings planet1 and planet2. 
+    The function should return a tuple containing all planets whose orbits are 
+    located between the orbit of planet1 and the orbit of planet2, sorted by 
+    the proximity to the sun. 
+    The function should return an empty tuple if planet1 or planet2
+    are not correct planet names. 
+    Examples
+    bf("Jupiter", "Neptune") ==> ("Saturn", "Uranus")
+    bf("Earth", "Mercury") ==> ("Venus")
+    bf("Mercury", "Uranus") ==> ("Venus", "Earth", "Mars", "Jupiter", "Saturn")
+    '''
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def bf(planet1, planet2):
+    """
+    There are eight planets in our solar system: the closest to the Sun 
+    is Mercury, the next one is Venus, then Earth, Mars, Jupiter, Saturn, 
+    Uranus, Neptune.
+    Write a function that takes two planet names as strings planet1 and planet2. 
+    The function should return a tuple containing all planets whose orbits are 
+    located between the orbit of planet1 and the orbit of planet2, sorted by 
+    the proximity to the sun. 
+    The function should return an empty tuple if planet1 or planet2
+    are not correct planet names. 
+    Examples
+    bf("Jupiter", "Neptune") ==> ("Saturn", "Uranus")
+    bf("Earth", "Mercury") ==> ("Venus")
+    bf("Mercury", "Uranus") ==> ("Venus", "Earth", "Mars", "Jupiter", "Saturn")
+    """
+    # Ordered list of planets from the Sun outward
+    planets = [
+        "Mercury", "Venus", "Earth", "Mars",
+        "Jupiter", "Saturn", "Uranus", "Neptune"
+    ]
+
+    # Validate inputs
+    if planet1 not in planets or planet2 not in planets:
+        return ()
+
+    # Find indices
+    idx1, idx2 = planets.index(planet1), planets.index(planet2)
+
+    # Determine the slice that lies strictly between the two planets
+    start = min(idx1, idx2) + 1
+    end = max(idx1, idx2)
+
+    # Extract the intermediate planets and return as a tuple
+    return tuple(planets[start:end])
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def sorted_list_sum(lst):
+    """Write a function that accepts a list of strings as a parameter,
+    deletes the strings that have odd lengths from it,
+    and returns the resulted list with a sorted order,
+    The list is always a list of strings and never an array of numbers,
+    and it may contain duplicates.
+    The order of the list should be ascending by length of each word, and you
+    should return the list sorted by that rule.
+    If two words have the same length, sort the list alphabetically.
+    The function should return a list of strings in sorted order.
+    You may assume that all words will have the same length.
+    For example:
+    assert list_sort(["aa", "a", "aaa"]) => ["aa"]
+    assert list_sort(["ab", "a", "aaa", "cd"]) => ["ab", "cd"]
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def sorted_list_sum(lst):
+    # Filter out strings with odd length
+    even_len_words = [word for word in lst if len(word) % 2 == 0]
+
+    # Sort by length first, then alphabetically for ties
+    even_len_words.sort(key=lambda w: (len(w), w))
+
+    return even_len_words
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def x_or_y(n, x, y):
+    """A simple program which should return the value of x if n is 
+    a prime number and should return the value of y otherwise.
+
+    Examples:
+    for x_or_y(7, 34, 12) == 34
+    for x_or_y(15, 8, 5) == 5
+    
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+    def is_prime(num):
+        if num <= 1:
+            return False
+        if num <= 3:
+            return True
+        if num % 2 == 0 or num % 3 == 0:
+            return False
+        i = 5
+        while i * i <= num:
+            if num % i == 0 or num % (i + 2) == 0:
+                return False
+            i += 6
+        return True
+
+    return x if is_prime(n) else y
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def double_the_difference(lst):
+    '''
+    Given a list of numbers, return the sum of squares of the numbers
+    in the list that are odd. Ignore numbers that are negative or not integers.
+    
+    double_the_difference([1, 3, 2, 0]) == 1 + 9 + 0 + 0 = 10
+    double_the_difference([-1, -2, 0]) == 0
+    double_the_difference([9, -2]) == 81
+    double_the_difference([0]) == 0  
+   
+    If the input list is empty, return 0.
+    '''
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def double_the_difference(lst):
+    """
+    Given a list of numbers, return the sum of squares of the numbers
+    in the list that are odd. Ignore numbers that are negative or not integers.
+
+    Examples:
+        double_the_difference([1, 3, 2, 0]) == 1 + 9 + 0 + 0 = 10
+        double_the_difference([-1, -2, 0]) == 0
+        double_the_difference([9, -2]) == 81
+        double_the_difference([0]) == 0  
+
+    If the input list is empty, return 0.
+    """
+    total = 0
+    for x in lst:
+        # consider only non‑negative integers
+        if isinstance(x, int) and x >= 0:
+            # include only odd numbers (even numbers contribute 0 anyway)
+            if x % 2 != 0:
+                total += x * x
+            else:
+                # even numbers contribute 0, but we add explicitly for clarity
+                total += 0
+    return total
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def compare(game,guess):
+    """I think we all remember that feeling when the result of some long-awaited
+    event is finally known. The feelings and thoughts you have at that moment are
+    definitely worth noting down and comparing.
+    Your task is to determine if a person correctly guessed the results of a number of matches.
+    You are given two arrays of scores and guesses of equal length, where each index shows a match. 
+    Return an array of the same length denoting how far off each guess was. If they have guessed correctly,
+    the value is 0, and if not, the value is the absolute difference between the guess and the score.
+    
+    
+    example:
+
+    compare([1,2,3,4,5,1],[1,2,3,4,2,-2]) -> [0,0,0,0,3,3]
+    compare([0,5,0,0,0,4],[4,1,1,0,0,-2]) -> [4,4,1,0,0,6]
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+    result = []
+    for actual, guess_val in zip(game, guess):
+        if actual == guess_val:
+            result.append(0)
+        else:
+            result.append(abs(actual - guess_val))
+    return result
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def Strongest_Extension(class_name, extensions):
+    """You will be given the name of a class (a string) and a list of extensions.
+    The extensions are to be used to load additional classes to the class. The
+    strength of the extension is as follows: Let CAP be the number of the uppercase
+    letters in the extension's name, and let SM be the number of lowercase letters 
+    in the extension's name, the strength is given by the fraction CAP - SM. 
+    You should find the strongest extension and return a string in this 
+    format: ClassName.StrongestExtensionName.
+    If there are two or more extensions with the same strength, you should
+    choose the one that comes first in the list.
+    For example, if you are given "Slices" as the class and a list of the
+    extensions: ['SErviNGSliCes', 'Cheese', 'StuFfed'] then you should
+    return 'Slices.SErviNGSliCes' since 'SErviNGSliCes' is the strongest extension 
+    (its strength is -1).
+    Example:
+    for Strongest_Extension('my_class', ['AA', 'Be', 'CC']) == 'my_class.AA'
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def Strongest_Extension(class_name, extensions):
+    # Initialize with the first extension as the current best
+    best_ext = extensions[0]
+    best_strength = sum(1 for c in best_ext if c.isupper()) - sum(1 for c in best_ext if c.islower())
+
+    # Iterate over remaining extensions to find the strongest one
+    for ext in extensions[1:]:
+        # Calculate strength: uppercase count minus lowercase count
+        strength = sum(1 for c in ext if c.isupper()) - sum(1 for c in ext if c.islower())
+        # Update if this extension has a higher strength
+        if strength > best_strength:
+            best_ext = ext
+            best_strength = strength
+        # If strengths are equal we keep the earlier one (do nothing)
+
+    # Return the formatted result
+    return f"{class_name}.{best_ext}"
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def cycpattern_check(a , b):
+    """You are given 2 words. You need to return True if the second word or any of its rotations is a substring in the first word
+    cycpattern_check("abcd","abd") => False
+    cycpattern_check("hello","ell") => True
+    cycpattern_check("whassup","psus") => False
+    cycpattern_check("abab","baa") => True
+    cycpattern_check("efef","eeff") => False
+    cycpattern_check("himenss","simen") => True
+
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def cycpattern_check(a, b):
+    """You are given 2 words. You need to return True if the second word or any of its rotations is a substring in the first word
+    cycpattern_check("abcd","abd") => False
+    cycpattern_check("hello","ell") => True
+    cycpattern_check("whassup","psus") => False
+    cycpattern_check("abab","baa") => True
+    cycpattern_check("efef","eeff") => False
+    cycpattern_check("himenss","simen") => True
+
+    """
+    # Empty pattern is trivially a substring
+    if b == "":
+        return True
+
+    n = len(b)
+    # Generate all cyclic rotations of b and check for substring presence
+    for i in range(n):
+        rotation = b[i:] + b[:i]
+        if rotation in a:
+            return True
+    return False
+```
+
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def even_odd_count(num):
+    """Given an integer. return a tuple that has the number of even and odd digits respectively.
+
+     Example:
+        even_odd_count(-12) ==> (1, 1)
+        even_odd_count(123) ==> (1, 2)
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+    # Convert the number to its absolute value and handle the special case of 0
+    n = abs(num)
+    if n == 0:
+        return (1, 0)  # zero is an even digit
+
+    even = 0
+    odd = 0
+
+    while n > 0:
+        digit = n % 10
+        if digit % 2 == 0:
+            even += 1
+        else:
+            odd += 1
+        n //= 10
+
+    return (even, odd)
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def int_to_mini_roman(number):
+    """
+    Given a positive integer, obtain its roman numeral equivalent as a string,
+    and return it in lowercase.
+    Restrictions: 1 <= num <= 1000
+
+    Examples:
+    >>> int_to_mini_roman(19) == 'xix'
+    >>> int_to_mini_roman(152) == 'clii'
+    >>> int_to_mini_roman(426) == 'cdxxvi'
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+    # Mapping of Roman numerals in descending order
+    roman_numerals = [
+        (1000, 'M'), (900, 'CM'), (500, 'D'), (400, 'CD'),
+        (100, 'C'), (90, 'XC'), (50, 'L'), (40, 'XL'),
+        (10, 'X'), (9, 'IX'), (5, 'V'), (4, 'IV'), (1, 'I')
+    ]
+
+    if not (1 <= number <= 1000):
+        raise ValueError("Number out of range (must be 1..1000)")
+
+    result = []
+    remaining = number
+    for value, symbol in roman_numerals:
+        while remaining >= value:
+            result.append(symbol)
+            remaining -= value
+        if remaining == 0:
+            break
+
+    return ''.join(result).lower()
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def right_angle_triangle(a, b, c):
+    '''
+    Given the lengths of the three sides of a triangle. Return True if the three
+    sides form a right-angled triangle, False otherwise.
+    A right-angled triangle is a triangle in which one angle is right angle or 
+    90 degree.
+    Example:
+    right_angle_triangle(3, 4, 5) == True
+    right_angle_triangle(1, 2, 3) == False
+    '''
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+    # Sort the sides so that the largest is last
+    sides = sorted([a, b, c])
+    # All sides must be positive
+    if sides[0] <= 0:
+        return False
+    # The three lengths must satisfy the triangle inequality
+    if sides[0] + sides[1] <= sides[2]:
+        return False
+    # Check the Pythagorean condition with a tolerance for floating‑point errors
+    return abs(sides[0] ** 2 + sides[1] ** 2 - sides[2] ** 2) < 1e-9
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def find_max(words):
+    """Write a function that accepts a list of strings.
+    The list contains different words. Return the word with maximum number
+    of unique characters. If multiple strings have maximum number of unique
+    characters, return the one which comes first in lexicographical order.
+
+    find_max(["name", "of", "string"]) == "string"
+    find_max(["name", "enam", "game"]) == "enam"
+    find_max(["aaaaaaa", "bb" ,"cc"]) == ""aaaaaaa"
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+    max_unique = -1
+    result = ""
+    for word in words:
+        unique_count = len(set(word))
+        if unique_count > max_unique:
+            max_unique = unique_count
+            result = word
+        elif unique_count == max_unique:
+            if word < result:
+                result = word
+    return result
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def eat(number, need, remaining):
+    """
+    You're a hungry rabbit, and you already have eaten a certain number of carrots,
+    but now you need to eat more carrots to complete the day's meals.
+    you should return an array of [ total number of eaten carrots after your meals,
+                                    the number of carrots left after your meals ]
+    if there are not enough remaining carrots, you will eat all remaining carrots, but will still be hungry.
+    
+    Example:
+    * eat(5, 6, 10) -> [11, 4]
+    * eat(4, 8, 9) -> [12, 1]
+    * eat(1, 10, 10) -> [11, 0]
+    * eat(2, 11, 5) -> [7, 0]
+    
+    Variables:
+    @number : integer
+        the number of carrots that you have eaten.
+    @need : integer
+        the number of carrots that you need to eat.
+    @remaining : integer
+        the number of remaining carrots thet exist in stock
+    
+    Constrain:
+    * 0 <= number <= 1000
+    * 0 <= need <= 1000
+    * 0 <= remaining <= 1000
+
+    Have fun :)
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+    eat_amount = min(need, remaining)
+    total_eaten = number + eat_amount
+    remaining_after = remaining - eat_amount
+    return [total_eaten, remaining_after]
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def do_algebra(operator, operand):
+    """
+    Given two lists operator, and operand. The first list has basic algebra operations, and 
+    the second list is a list of integers. Use the two given lists to build the algebric 
+    expression and return the evaluation of this expression.
+
+    The basic algebra operations:
+    Addition ( + ) 
+    Subtraction ( - ) 
+    Multiplication ( * ) 
+    Floor division ( // ) 
+    Exponentiation ( ** ) 
+
+    Example:
+    operator['+', '*', '-']
+    array = [2, 3, 4, 5]
+    result = 2 + 3 * 4 - 5
+    => result = 9
+
+    Note:
+        The length of operator list is equal to the length of operand list minus one.
+        Operand is a list of of non-negative integers.
+        Operator list has at least one operator, and operand list has at least two operands.
+
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def do_algebra(operator, operand):
+    """
+    Given two lists operator, and operand. The first list has basic algebra operations, and 
+    the second list is a list of integers. Use the two given lists to build the algebric 
+    expression and return the evaluation of this expression.
+
+    The basic algebra operations:
+    Addition ( + ) 
+    Subtraction ( - ) 
+    Multiplication ( * ) 
+    Floor division ( // ) 
+    Exponentiation ( ** ) 
+
+    Example:
+    operator['+', '*', '-']
+    array = [2, 3, 4, 5]
+    result = 2 + 3 * 4 - 5
+    => result = 9
+
+    Note:
+        The length of operator list is equal to the length of operand list minus one.
+        Operand is a list of of non-negative integers.
+        Operator list has at least one operator, and operand list has at least two operands.
+
+    """
+    # Build the expression as a string respecting the order of operands and operators.
+    # The resulting string can be safely evaluated because it contains only
+    # integers and the allowed operators.
+    expr = str(operand[0])
+    for op, val in zip(operator, operand[1:]):
+        expr += f' {op} {val}'
+    # Evaluate the expression using Python's built‑in eval.
+    # Since the input is controlled (only numbers and known operators),
+    # this is safe for the intended use case.
+    return eval(expr)
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def solve(s):
+    """You are given a string s.
+    if s[i] is a letter, reverse its case from lower to upper or vise versa, 
+    otherwise keep it as it is.
+    If the string contains no letters, reverse the string.
+    The function should return the resulted string.
+    Examples
+    solve("1234") = "4321"
+    solve("ab") = "AB"
+    solve("#a@C") = "#A@c"
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+    result = []
+    has_letter = any(ch.isalpha() for ch in s)
+    if not has_letter:
+        return s[::-1]
+    for ch in s:
+        if ch.isalpha():
+            result.append(ch.swapcase())
+        else:
+            result.append(ch)
+    return ''.join(result)
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def string_to_md5(text):
+    """
+    Given a string 'text', return its md5 hash equivalent string.
+    If 'text' is an empty string, return None.
+
+    >>> string_to_md5('Hello world') == '3e25960a79dbc69b674cd4ec67a72c62'
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+    import hashlib
+
+    if text == "":
+        return None
+    return hashlib.md5(text.encode("utf-8")).hexdigest()
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
+**********
+* SYSTEM *
+**********
+You are an AI that only responds with only py code. You will be given a function signature and docstring. You should fill in the following text of the missing function body. For example, the first line of the completion should have 4 spaces for the indendation so that it fits syntactically with the preceding signature."
+
+********
+* USER *
+********
+
+def generate_integers(a, b):
+    """
+    Given two positive integers a and b, return the even digits between a
+    and b, in ascending order.
+
+    For example:
+    generate_integers(2, 8) => [2, 4, 6, 8]
+    generate_integers(8, 2) => [2, 4, 6, 8]
+    generate_integers(10, 14) => []
+    """
+
+********
+* N: 1 *
+********
+**************
+* RESPONSE 1 *
+**************
+```python
+def generate_integers(a, b):
+    """
+    Given two positive integers a and b, return the even digits between a
+    and b, in ascending order.
+
+    For example:
+    generate_integers(2, 8) => [2, 4, 6, 8]
+    generate_integers(8, 2) => [2, 4, 6, 8]
+    generate_integers(10, 14) => []
+    """
+    low, high = (a, b) if a <= b else (b, a)
+    even_digits = [0, 2, 4, 6, 8]
+    return [d for d in even_digits if low <= d <= high]
+```
+====================================================================================================
+====================================================================================================
+====================================================================================================
+
