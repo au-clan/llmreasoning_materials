@@ -9,7 +9,7 @@ import os
 import time
 from dataclasses import dataclass, field
 
-from openai import AsyncOpenAI, OpenAI
+from cachesaver.models.openai import AsyncOpenAI, OpenAI
 
 try:  # optional: load OPENROUTER_API_KEY / MODEL from a .env file
     from dotenv import load_dotenv
