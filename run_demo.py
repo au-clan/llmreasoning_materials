@@ -2,7 +2,7 @@
 """ACL'26 reasoning tutorial — live demo driver.
 
 Usage:
-  python run_demo.py demo  [--id gsm8k-3] [--model ...]      # one problem, 3 strategies side by side
+  python run_demo.py demo  [--id gsm8k-3] [--model ...]      # one problem, all strategies side by side
   python run_demo.py bench [--n 12] [--source sample|hf]     # full budget sweep -> results.json
   python run_demo.py plot                                    # results.json -> pareto.png
 
@@ -12,10 +12,12 @@ from __future__ import annotations
 
 import argparse
 
-from reasoning_demo.client import LLM
-from reasoning_demo.data import load_problems
-from reasoning_demo.extract import is_correct
-from reasoning_demo.strategies import agentic, iterative, self_consistency
+from demo.reasoning_demo.client import LLM
+from demo.reasoning_demo.data import load_problems
+from demo.reasoning_demo.extract import is_correct
+from demo.reasoning_demo.strategies import (agentic, fleet_of_agents, input_output,
+                                       iterative, react, self_consistency,
+                                       tree_of_thoughts)
 
 
 def cmd_demo(args):
@@ -30,9 +32,13 @@ def cmd_demo(args):
     print("-" * 56)
 
     runs = [
-        ("iterative (2 rounds)", lambda: iterative(llm, prob.question, rounds=2)),
+        ("input-output", lambda: input_output(llm, prob.question)),
         ("self-consistency k=5", lambda: self_consistency(llm, prob.question, k=5)),
-        ("agentic (tools)", lambda: agentic(llm, prob.question, max_steps=6)),
+        ("react (≤6 steps)", lambda: react(llm, prob.question, max_steps=6)),
+        ("agent tool-use", lambda: agentic(llm, prob.question, max_steps=6)),
+        ("self-refine (2 rounds)", lambda: iterative(llm, prob.question, rounds=2)),
+        ("tree-of-thoughts d=2", lambda: tree_of_thoughts(llm, prob.question, depth=2)),
+        ("fleet-of-agents n=4", lambda: fleet_of_agents(llm, prob.question, n_agents=4)),
     ]
     for label, fn in runs:
         r = fn()
@@ -46,7 +52,7 @@ def cmd_trace(args):
     import os
     import webbrowser
 
-    from reasoning_demo.tracevis import render
+    from demo.reasoning_demo.tracevis import render
 
     llm = LLM(model=args.model)
     problems = load_problems(source=args.source)
@@ -55,9 +61,13 @@ def cmd_trace(args):
     print(f"Model: {llm.model}\nProblem [{prob.id}]: {prob.question[:70]}...")
     results = []
     for label, fn in [
-        ("iterative", lambda: iterative(llm, prob.question, rounds=args.rounds)),
+        ("input_output", lambda: input_output(llm, prob.question)),
         ("self_consistency", lambda: self_consistency(llm, prob.question, k=args.k)),
+        ("react", lambda: react(llm, prob.question, max_steps=args.max_steps)),
         ("agentic", lambda: agentic(llm, prob.question, max_steps=args.max_steps)),
+        ("iterative", lambda: iterative(llm, prob.question, rounds=args.rounds)),
+        ("tree_of_thoughts", lambda: tree_of_thoughts(llm, prob.question, depth=args.depth)),
+        ("fleet_of_agents", lambda: fleet_of_agents(llm, prob.question, n_agents=args.n_agents)),
     ]:
         print(f"  running {label} ...", flush=True)
         results.append(fn())
@@ -73,7 +83,7 @@ def cmd_live(args):
     import threading
     import webbrowser
 
-    from reasoning_demo.liveserver import serve
+    from demo.reasoning_demo.liveserver import serve
 
     url = f"http://{args.host}:{args.port}/"
     if not args.no_open:
@@ -82,14 +92,14 @@ def cmd_live(args):
 
 
 def cmd_bench(args):
-    from reasoning_demo.bench import run_sweep
+    from demo.reasoning_demo.bench import run_sweep
 
     strategies = args.strategies.split(",") if args.strategies else None
     run_sweep(model=args.model, source=args.source, n=args.n, strategies=strategies)
 
 
 def cmd_plot(args):
-    from reasoning_demo.plot import plot
+    from demo.reasoning_demo.plot import plot
 
     plot()
 
@@ -114,11 +124,13 @@ def main():
     b.set_defaults(func=cmd_bench)
 
     t = sub.add_parser("trace", parents=[common],
-                       help="run all 3 strategies on one problem -> interactive HTML")
+                       help="run all strategies on one problem -> interactive HTML")
     t.add_argument("--id", default="gsm8k-3", help="problem id to trace")
     t.add_argument("--rounds", type=int, default=2, help="iterative refine rounds")
     t.add_argument("--k", type=int, default=5, help="self-consistency samples")
     t.add_argument("--max-steps", type=int, default=6, help="agentic step cap")
+    t.add_argument("--depth", type=int, default=2, help="tree-of-thoughts beam depth")
+    t.add_argument("--n-agents", type=int, default=4, help="fleet-of-agents fleet size")
     t.add_argument("--no-open", action="store_true", help="don't open the browser")
     t.set_defaults(func=cmd_trace)
 

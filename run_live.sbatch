@@ -9,8 +9,7 @@
 
 set -euo pipefail
 
-PORT=8001                        # port the demo launcher (index/game24/protocols) listens on
-STRAT_PORT=8000                  # port the live strategies SSE server listens on (separate)
+PORT=8001                        # single port: serves index + game24 + protocols + strategies
 PROJECT_DIR="$SLURM_SUBMIT_DIR"  # assumes you `sbatch` from the repo root
 cd "$PROJECT_DIR"
 
@@ -30,10 +29,9 @@ if [[ -n "${NGROK_AUTHTOKEN:-}" ]]; then
 fi
 
 # --- start the unified demo launcher (binds to localhost; ngrok forwards to it).
-#     Serves the index + Game24 tree + scoring-protocols on $PORT, and starts the
-#     live reasoning-strategies SSE server on $STRAT_PORT in a background thread. ---
-uv run python demo/serve.py --no-open --host 127.0.0.1 \
-  --port "$PORT" --strategies-port "$STRAT_PORT" &
+#     One port serves everything: index + Game24 tree + scoring-protocols + the
+#     live reasoning-strategies demo (and its /events SSE stream). ---
+uv run python demo/serve.py --no-open --host 127.0.0.1 --port "$PORT" &
 SERVER_PID=$!
 
 # --- start the ngrok tunnel agent ---
@@ -55,10 +53,8 @@ done
 echo "=================================================================="
 if [[ -n "$PUBLIC_URL" ]]; then
   echo "  LIVE DEMO PUBLIC URL:  $PUBLIC_URL"
-  echo "  (forwards to the launcher on $(hostname):$PORT — index, /game24, /protocols)"
-  echo "  NOTE: the live 'strategies' demo runs on a second port ($STRAT_PORT) that this"
-  echo "        single ngrok tunnel does not expose; it works on the node, but to reach"
-  echo "        it remotely you'd tunnel $STRAT_PORT too (free ngrok allows one tunnel)."
+  echo "  (forwards to the launcher on $(hostname):$PORT — all demos on this one URL:"
+  echo "   index, /game24, /protocols, and the live /strategies trace explorer)"
 else
   echo "  ngrok did not report a URL — see ngrok-$SLURM_JOB_ID.log"
 fi
